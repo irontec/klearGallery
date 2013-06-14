@@ -1,0 +1,103 @@
+div.klear-gallery fieldset{
+
+    margin-bottom: 1em;
+    width: 370px;
+    min-width: 90%;
+}
+
+div.klear-gallery fieldset p {
+
+    padding: 0.1em;
+}
+
+div.klear-gallery a {
+
+    text-decoration: none;
+}
+
+div.klear-gallery ul.pictureList li {
+    display: block;
+    float: left;
+    height: 122px;
+    text-align: center;
+    width: 100px;
+    min-height: 120px;
+    border: 1px solid #CCCCCC;
+    margin: 0px 5px 5px 0;
+}
+
+div.topMenu a.left {
+
+    float: left;
+}
+
+div.topMenu a.right {
+
+    float: right;
+}
+
+p.sizeSelector {
+
+    right: 25px;
+    position: absolute;
+    text-align: right;
+    top: 49px;
+}
+
+div.selectableImgWrapper {
+
+    margin-top: 5px;
+}
+
+div.galleryContent ul.pictureList,
+div.pictureDetail {
+
+    margin-top: 10px;
+}
+
+
+div.pictureDetail div.assistant {
+
+    margin-top: 6px;
+}
+
+div.pictureDetail div.assistant p {
+
+    padding: 3px 8px;
+}
+
+
+div.photoTitle {
+
+    padding: 5px;
+    margin-top: 10px;
+}
+
+div.photoTitle.edit {
+
+    margin-top:0;
+    float:left;
+    width: 250px%;
+}
+
+div.pictureDetail div.metadata {
+
+    margin-top: 0px;
+    display: block;
+}
+
+div.pictureDetail div.metadata span {
+
+    display:block;
+    font-weight:normal;
+}
+
+div.galleryContent div.qq-gallery-upload-drop-area {
+
+    border: 4px dashed #DDDDDD;
+    height: 150px;
+    padding-top:90px;
+    text-align:center;
+    font-size:20px;
+    color: #AAAAAA;
+}

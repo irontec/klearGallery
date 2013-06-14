@@ -1,0 +1,312 @@
+${( _self = this ),''}
+<div class="klear-gallery">
+{{if this.data.currentPage == "index"}}
+<table class="kMatrix">
+  <caption class="ui-state-active ui-priority-primary">
+        <?= $this->translate("Listado de Galerías"); ?>
+        <span class="extraCaptionInfo"> <?= $this->translate("Total"); ?>:
+        <strong>${this.data.galleries.length}</strong> <?= $this->translate("Registros"); ?> </span>
+  </caption>
+  <tbody>
+  <tr class="ui-widget-content">
+    <th class="ui-widget-header" data-field="pk">
+      <span class="title"><?= $this->translate("Galería"); ?></span>
+    </th>
+    <th class="ui-widget-header" data-field="name">
+      <span class="title"><?= $this->translate("Nº Elementos"); ?></span>
+    </th>
+    <th class="ui-widget-header" data-field="name">
+      <span class="title"><?= $this->translate("Opciones"); ?></span>
+    </th>
+  {{each(idx,gallery) this.data.galleries}}
+  <tr class="ui-widget-content">
+    <td>
+        <a href="${baseUrl}&galleryPk=${gallery.pk}">${gallery.name}</a>
+    </td>
+    <td>
+        ${gallery.recordCount}
+    </td>
+    <td>
+        <a href="${baseUrl}&galleryPk=${gallery.pk}&picSizes=true">
+            <span class="ui-silk inline ui-silk-cog"></span>
+        </a>
+    </td>
+  </tr>
+  {{/each}}
+  </tbody>
+</table>
+{{/if}}
+
+{{if this.data.currentPage == "gallery"}}
+    <div class="topMenu">
+        <a class="action ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" title="<?= $this->translate("volver");?>" href="${baseUrl}">
+            <span class="ui-button-text">
+                <span title="<?= $this->translate("Volver"); ?>" class="ui-silk inline ui-silk-arrow-left"></span>
+                <?= $this->translate("Volver"); ?>
+            </span>
+        </a>
+
+        <div class="right">
+            <a class="action ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only newImg"
+               title="<?= $this->translate("Nueva imagen"); ?>">
+                <span class="ui-button-text">
+                    <span title="<?= $this->translate("Nueva imagen"); ?>" class="ui-silk inline ui-silk-add"></span>
+                    <?= $this->translate("Añadir"); ?>
+                </span>
+            </a>
+            <a style="display:none;" class="action ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only newImg"
+               title="<?= $this->translate("Nueva imagen"); ?>">
+                <span class="ui-button-text">
+                    <span title="<?= $this->translate("Volver"); ?>" class="ui-silk inline  ui-silk-arrow-undo"></span>
+                    <?= $this->translate("Cancelar"); ?>
+                </span>
+            </a>
+         </div>
+    </div>
+    <br style="clear-both;"/>
+    <div class="galleryContent">
+        <ul class="pictureList">
+        {{each(idx,picture) this.data.pictures}}
+            <li>
+                <a href="${baseUrl}&picturePk=${picture.pk}&page=${_self.data.paginator.current}">
+                    <img rel="${publicImgRoute}&pk=${picture.pk}" src="${baseUrl}&picturePk=${picture.pk}&preview=true&size=100" />
+                    <br />
+                    ${picture.name}
+                </a>
+            </li>
+        {{/each}}
+        </ul>
+        <div style="display:none;" class="uploader" style="border: 4px dashed #DDDDDD">
+            <div class="drag-drop-inside qq-upload-drop-area-active">
+                <p class="drag-drop-info"><?= $this->translate("Arrastra el archivo aquí"); ?></p>
+                <p>o</p>
+                <p class="drag-drop-buttons">
+                    <input type="button" class="button" value="<?= $this->translate("Elegir archivo"); ?>"
+                    id="plupload-browse-button" style="position: relative; z-index: 0;" />
+                </p>
+            </div>
+        </div>
+
+        <div class="paginator ui-widget-content ui-corner-all">
+            <a href="${this.data.baseUrl}&galleryPk=${this.data.galleryId}&page=${this.data.paginator.first}" class="ui-state-default">«</a>
+            <a href="${this.data.baseUrl}&galleryPk=${this.data.galleryId}&page={{if ( this.data.paginator.previous)}}${ this.data.paginator.previous}{{else}}${ this.data.paginator.current}{{/if}}" class="ui-state-default">‹</a>
+
+            {{each(idx,_curPage) this.data.paginator.pagesInRange}}
+                <a href="${_self.data.baseUrl}&galleryPk=${_self.data.galleryId}&page=${_curPage}" class="{{if (_curPage== _self.data.paginator.current)}}ui-state-active{{else}}ui-state-default{{/if}}" data-page="${_curPage}">${_curPage}</a>
+            {{/each}}
+
+            <a class="ui-state-default" href="${this.data.baseUrl}&galleryPk=${this.data.galleryId}&page={{if (this.data.paginator.next)}}${this.data.paginator.next}{{else}}${ this.data.paginator.lastPageInRange}{{/if}}">›</a>
+            <a class="ui-state-default" href="${this.data.baseUrl}&galleryPk=${this.data.galleryId}&page=${ this.data.paginator.lastPageInRange}">»</a>
+        </div>
+    </div>
+
+{{/if}}
+
+{{if this.data.currentPage == "picture"}}
+    <div class="topMenu">
+        <a class="return action ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" title="<?= $this->translate("Volver");?>"
+            href="${baseUrl}&galleryPk=${this.data.picture[this.data.fieldToParentTable]}&page=${this.data.page}">
+            <span class="ui-button-text">
+                <span title="<?= $this->translate("Volver"); ?>" class="ui-silk inline ui-silk-arrow-left"></span> <?= $this->translate("Volver"); ?>
+            </span>
+        </a>
+
+        <div class="right">
+            <a class="delete action ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" title="<?= $this->translate("Eliminar");?>"
+                rel="${baseUrl}&removePic=${this.data.picture.pk}">
+                <span class="ui-button-text">
+                    <span title="<?= $this->translate("Eliminar");?>" class="ui-silk inline ui-silk-camera-delete"></span> <?= $this->translate("Eliminar");?>
+                </span>
+            </a>
+            <a class="edit init action ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" title="<?= $this->translate("Modo edición");?>">
+                <span class="ui-button-text">
+                    <span class="ui-silk inline ui-silk-pencil"></span>
+                    <?= $this->translate("Editar");?>
+                </span>
+            </a>
+            <a style="display:none;" class="edit cancel action ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+               title="<?= $this->translate("Cancelar modo edición");?>">
+                <span class="ui-button-text">
+                    <span title="<?= $this->translate("Volver");?>" class="ui-silk inline  ui-silk-arrow-undo"></span>
+                    <?= $this->translate("Cancelar");?>
+                </span>
+            </a>
+            <a style="display:none;" class="save action ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+               title="<?= $this->translate("Guardar");?>">
+                <span class="ui-button-text">
+                    <span title="Volver" class="ui-silk inline ui-silk-bullet-disk"></span>
+                    <?= $this->translate("Guardar");?>
+                </span>
+            </a>
+        </div>
+    </div>
+
+    <div class="pictureDetail klearMatrix_form">
+        <fieldset class="ui-widget-content ui-corner-all">
+            <legend class="ui-widget-header ui-corner-all">${this.data.picture.title}&nbsp;</legend>
+            <p class="sizeSelector" style="display:none;">
+                <select name="size" class="sizeSelector">
+                    <option value=""><?= $this->translate("Tamaño original");?></option>
+                    {{each(idx, row) this.data.picture.availableDimensions}}
+                        <option value="${row.pk}">
+                            ${row.width.value}x${row.height.value}
+                            [${row.policy.value}]
+                        </option>
+                    {{/each}}
+                </select>
+            </p>
+
+            <div class="selectableImgWrapper">
+                <img rel="${publicImgRoute}?pk=${this.data.picture.pk}" class="selectable" src="${baseUrl}&picturePk=${this.data.picture.pk}&preview=true&size=370" />
+            </div>
+            <div class="ui-widget-content ui-corner-all assistant" style="display:none;">
+                <div class="fieldInfo-boxinfo ui-state-highlight ui-corner-all" style="display: none;">
+                    <p><?= $this->translate("Para añadir esta imagen al editor de contenido, seleccione el tamaño deseado y haga click sobre la imagen");?></p>
+                </div>
+                <span data-title="<?= $this->translate("Al recibir un nuevo curriculum se avisará vía email a las direcciones configuradas para ello");?>"
+                class=" ui-silk ui-silk-help fieldInfo-box fieldInfo-position-left "></span>
+                <?= $this->translate("¿Necesita ayuda?");?>
+             </div>
+            <div>
+                <div class="ui-widget-header photoTitle">
+                    <strong><?= $this->translate("Titulo:");?></strong>
+                    <form method="POST" style="display:inline;"
+                     action="${baseUrl}&updatePic=${this.data.picture.pk}">
+                        <span>${this.data.picture.title}</span>
+                        <input size="17" style="display:none;" type="text" name="${this.data.picture.titleFieldName}" value="${this.data.picture.title}" />
+                    </form>
+                </div>
+                <div class="container ui-widget-header ui-state-default metadata">
+                    <p>
+                        <?= $this->translate("Nombre de archivo");?>: <span>${this.data.picture.filename}</span>
+                    </p>
+                    <p>
+                        <?= $this->translate("Tamaño");?>: <span>${this.data.picture.size} kb</span>
+                    </p>
+                    <p>
+                        <?= $this->translate("Tipo de archivo");?>: <span>${this.data.picture.mimetype}</span>
+                    </p>
+                    <p>
+                        <?= $this->translate("Dimensiones");?>: <span>${this.data.picture.dimensions.width} x ${this.data.picture.dimensions.height}</span>
+                    </p>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+{{/if}}
+
+{{if this.data.currentPage == "picSizes"}}
+    <div class="topMenu">
+        <a class="action ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only return" title="Volver"
+           href="${baseUrl}&galleryPk=${this.data.sizes[this.data.fieldToParentTable]}">
+            <span class="ui-button-text">
+                <span title="Volver" class="ui-silk inline ui-silk-arrow-left return"></span> <?= $this->translate("Volver");?>
+            </span>
+        </a>
+        <div class="right">
+            <a class="action ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
+               title="<?= $this->translate("Añadir"); ?>" href="${_self.data.baseUrl}&galleryPk=${_self.data.parentPk}&picSizes=new">
+                <span class="ui-button-text">
+                    <span title="<?= $this->translate("Añadir"); ?>" class="ui-silk inline ui-silk-add"></span>
+                    <?= $this->translate("Añadir"); ?>
+                </span>
+            </a>
+        </div>
+    </div>
+    <table class="kMatrix">
+      <caption class="ui-state-active ui-priority-primary">
+        <?= $this->translate("Tamaños de imagen");?>  <span class="extraCaptionInfo">
+        <?= $this->translate("Total");?>:<strong>${this.data.sizes.length}</strong> <?= $this->translate("Registros");?> </span>
+      </caption>
+      <tbody>
+      <tr class="ui-widget-content">
+        <th class="ui-widget-header" data-field="pk">
+          <span class="title"><?= $this->translate("Ancho"); ?></span>
+        </th>
+        <th class="ui-widget-header" data-field="name">
+          <span class="title"><?= $this->translate("Alto"); ?></span>
+        </th>
+        <th class="ui-widget-header" data-field="name">
+          <span class="title"><?= $this->translate("Política"); ?></span>
+        </th>
+        <th class="ui-widget-header" data-field="name">
+          <span class="title"><?= $this->translate("Opciones");?></span>
+        </th>
+      </tr>
+      {{each(idx,row) this.data.sizes}}
+      <tr class="ui-widget-content">
+        <td>
+            ${row.width.value}
+        </td>
+        <td>
+            ${row.height.value}
+        </td>
+        <td>
+            ${row.policy.value}
+        </td>
+        <td>
+            <a title="<?= $this->translate("Editar");?>" href="${_self.data.baseUrl}&galleryPk=${_self.data.parentPk}&picSizes=edit&pk=${row.pk}"
+               class="option screen default ui-state-nojump">
+                <span class="ui-silk inline ui-silk-pencil"></span>
+            </a>
+            <a title="<?= $this->translate("Delete");?>" data-dialog="pagEstaticasDel_dialog" class="option ui-state-nojump delete"
+               rel="${_self.data.baseUrl}&galleryPk=${_self.data.parentPk}&picSizes=delete&pk=${row.pk}"
+            >
+                <span class="ui-silk inline ui-silk-bin"></span>
+            </a>
+        </td>
+      </tr>
+      {{/each}}
+      </tbody>
+    </table>
+
+{{/if}}
+
+{{if this.data.currentPage == "picSizeEdit" || this.data.currentPage == "picSizeNew" }}
+<div class="ui-tabs-panel ui-widget-content ui-corner-bottom">
+    <a class="action return ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" title="Volver"
+       href="${baseUrl}&galleryPk=${this.data.parentPk}&picSizes=true">
+        <span class="ui-button-text">
+            <span title="Volver" class="ui-silk inline ui-silk-arrow-left"></span> <?= $this->translate("Volver");?>
+        </span>
+    </a>
+
+    <form method="POST" class="klearMatrix_form" action="${_self.data.baseUrl}&galleryPk=${this.data.parentPk}&picSizes=update&pk=${this.data.sizes[0].pk}">
+        <fieldset class="ui-widget-content ui-corner-all">
+            <legend class="ui-widget-header ui-corner-all"><?php echo $this->translate("Editar"); ?></legend>
+
+            <div class="container ui-widget-content ui-corner-all">
+                <label><?= $this->translate("Ancho"); ?></label>
+                <input type="text" value="${this.data.sizes[0].width.value}" name="${this.data.sizes[0].width.fieldName}" class="ui-widget ui-state-default ui-corner-all">
+            </div>
+            <div class="container ui-widget-content ui-corner-all">
+                <label><?= $this->translate("Alto"); ?></label>
+                <input type="text" value="${this.data.sizes[0].height.value}" name="${this.data.sizes[0].height.fieldName}" class="ui-widget ui-state-default ui-corner-all">
+            </div>
+            <div class="container ui-widget-content ui-corner-all">
+               <label><?= $this->translate("Política"); ?></label>
+               <select name="${this.data.sizes[0].policy.fieldName}">
+                   <option value="exact"><?php echo $this->translate("exact"); ?></option>
+                   <option value="crop"><?php echo $this->translate("crop"); ?></option>
+                   <option value="exactWidth" selected><?php echo $this->translate("exactWidth"); ?></option>
+                   <option value="exactHeight"><?php echo $this->translate("exactHeight"); ?></option>
+               </select>
+            </div>
+        </fieldset>
+        <div class="generalOptionsToolbar ui-widget-content ui-corner-all">
+          <a title="<?php echo $this->translate("Guardar");?>"
+             class="action submit ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button"
+          >
+            <span class="ui-button-text">
+              <span class="ui-silk inline ui-silk-bullet-disk"></span>
+              <?php echo $this->translate("Guardar");?>
+            </span>
+          </a>
+        </div>
+        <input type="hidden" name="pk" value="${this.data.sizes[0].pk}" />
+    </form>
+</div>
+{{/if}}
+
+
+</div>

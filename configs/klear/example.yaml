@@ -1,0 +1,11 @@
+    fieldName:
+#			...
+      type: textarea
+      source:
+        control: wym
+        stylesheet: "../css/wymeditor.css"
+        plugins:
+          - hovertools
+          - resizable
+          - fullscreen
+          - kleargallery

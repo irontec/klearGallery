@@ -99,7 +99,7 @@ class KlearGallery_IndexController extends Zend_Controller_Action
 
         $jsonResponse = new Klear_Model_DispatchResponse();
         $jsonResponse->setModule('default');
-        $jsonResponse->addTemplate("/../klearGallery/template","mainHelpTmpl");
+        $jsonResponse->addTemplate("/../klearGallery/template", "mainHelpTmpl");
         $jsonResponse->setPlugin('gallery');
         $jsonResponse->addJsFile("/../klearGallery/js/klear.gallery.js");
         $jsonResponse->addJsFile("/../klearMatrix/js/plugins/qq-fileuploader.js");
@@ -455,7 +455,8 @@ class KlearGallery_IndexController extends Zend_Controller_Action
     {
         if (isset($this->_mainConfig->publicPictureRoute)) {
 
-            $uri = implode("/",
+            $uri = implode(
+                "/",
                 array(
                     $this->_mainConfig->publicPictureRoute->module,
                     $this->_mainConfig->publicPictureRoute->controller,
@@ -482,11 +483,11 @@ class KlearGallery_IndexController extends Zend_Controller_Action
         $pictureNum = $this->_pictureMapper->countByQuery($where);
 
         $pictures = $this->_pictureMapper->fetchList(
-                        $where,
-                        $pictureModel->getPrimaryKeyName() . ' desc',
-                        $itemsPerPage,
-                        ($itemsPerPage * ($currentPage-1))
-                    );
+            $where,
+            $pictureModel->getPrimaryKeyName() . ' desc',
+            $itemsPerPage,
+            ($itemsPerPage * ($currentPage-1))
+        );
 
         $picturesData = array();
 

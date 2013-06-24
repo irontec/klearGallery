@@ -561,24 +561,6 @@ class KlearGallery_IndexController extends Zend_Controller_Action
         );
     }
 
-    protected function _getPicturesbyGalleryId ($idGallery)
-    {
-        $galleryData = array();
-        $galleries = $this->_galleryMapper->fetchAll();
-
-        foreach ($galleries as $gallery) {
-
-            $galleryNameGetter = 'get' . ucfirst($this->_mainConfig->galleries->titleFieldName);
-
-            $galleryData[] = array(
-                'pk' => $gallery->getPrimaryKey(),
-                'name' => $gallery->$galleryNameGetter()
-            );
-        }
-
-        return $galleryData;
-    }
-
     protected function _sendPictureToBrowser($picturePk)
     {
         $maxSize = $this->_request->getParam("size", false);

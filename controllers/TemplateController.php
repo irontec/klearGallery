@@ -11,6 +11,6 @@ class KlearGallery_TemplateController extends Zend_Controller_Action
     public function indexAction()
     {
         $this->getRequest()->setParam("namespace", "klear-gallery");
-        echo $response = $this->view->render('template/index.phtml');
+        echo $this->view->render('template/index.phtml');
     }
 }

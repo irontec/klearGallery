@@ -373,7 +373,6 @@ class KlearGallery_IndexController extends Zend_Controller_Action
             $sizes = $this->_pictureSizeMapper->findByField($relationField, $galleryPk);
         }
 
-        $picturesSizesData = array();
         $availableSizes = array();
 
         foreach ($sizes as $size) {
@@ -509,7 +508,7 @@ class KlearGallery_IndexController extends Zend_Controller_Action
 
         return array(
             'pictures' => $picturesData,
-            'paginator' => (array) $paginator->getPages(),
+            'paginator' => $paginatorResults,
         );
     }
 
@@ -673,9 +672,6 @@ class KlearGallery_IndexController extends Zend_Controller_Action
 
     protected function _getParentRelationFieldName($seccion = null)
     {
-        //TODO : genérico para utilizar con pictureSizes
-        $parentModel = $this->_galleryMapper->loadModel(null);
-
         if (is_null($seccion)) {
 
             $seccion = $this->_getCurrentPage();
@@ -698,7 +694,7 @@ class KlearGallery_IndexController extends Zend_Controller_Action
 
         $propertyName = null;
 
-        foreach ($model->getParentList() as $contraint => $properties) {
+        foreach ($model->getParentList() as $properties) {
 
             if ($properties['table_name'] == $parentTableName) {
 

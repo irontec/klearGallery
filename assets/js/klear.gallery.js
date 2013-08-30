@@ -346,13 +346,9 @@
                               selectedImg = wym._wym._selected_image;
                           }
 
-                          var imgSrc = $(this).attr("rel");
-
                           var sizeOption = $("select.sizeSelector option:selected", _self.layout);
-                          if(sizeOption.attr("value") != "") {
-
-                                imgSrc += "&sizeId=" + sizeOption.attr("value");
-                          }
+                          var sizeOptionValue = sizeOption.attr("value") ? sizeOption.attr("value") : 0;
+                          var imgSrc = $(this).data("handler").replace("#sizeId#", sizeOptionValue);
 
                           var execResp = _self.options._wym._doc.execCommand("insertImage", false, imgSrc);
                           var container =  _self.options._wym.selected();

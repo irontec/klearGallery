@@ -1,0 +1,29 @@
+production:
+  galleries:
+    mapper: Cianoplan\Mapper\Sql\KlearImageGalleries
+    titleFieldName: name
+  galleryPictures:
+    mapper: Cianoplan\Mapper\Sql\KlearImageGalleriesPictures
+    titleFieldName: titulo
+    slugFieldname: slug
+  pictureSizes:
+    mapper: Cianoplan\Mapper\Sql\KlearImageGalleriesSizes
+    widthFieldName: width
+    heightFieldName: height
+    policyFieldName: rule
+  publicPictureRoute:
+    route: klearGallery/media/image/(\d+)\-(\d+)\-([a-z0-9-]+)\.([A-Za-z]+)$
+    defaults:
+      controller: media
+      action: image
+      module: klearGallery
+    map:
+      1: pk
+      2: sizeId
+      3: fileName
+      4: extension
+    reverse: klearGallery/media/image/%s-%s-%s.%s
+testing:
+  _extends: production
+development:
+  _extends: production

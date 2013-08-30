@@ -75,10 +75,6 @@ class KlearGallery_Model_Core
 
     protected function _setupCache()
     {
-        $frontendOptions = array(
-            'lifetime' => 2592000 // 1 month
-        );
-
         $backendOptions = array(
             'cache_dir' => APPLICATION_PATH . '/cache/klearGallery'
         );
@@ -514,7 +510,7 @@ class KlearGallery_Model_Core
         $valueMap = $this->_mainConfig['publicPictureRoute']['map'];
         ksort($valueMap);
 
-        foreach ($valueMap as $pos => $varName) {
+        foreach ($valueMap as $varName) {
 
 
             $values[$varName] = array_key_exists($varName, $imageData) ? $imageData[$varName] : "#$varName#";
@@ -741,9 +737,7 @@ class KlearGallery_Model_Core
         $response = Zend_Controller_Front::getInstance()->getResponse();
 
         foreach ($this->_defaultHeaders as $key => $value) {
-            if (!isset($headers[$key])) {
-                $response->setHeader($key, $value, true);
-            }
+            $response->setHeader($key, $value, true);
         }
 
         $response->sendHeaders();

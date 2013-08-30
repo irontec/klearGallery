@@ -93,7 +93,7 @@ class KlearGallery_Model_Core
                 'automatic_serialization' => false,
                 'write_control' => false
             )
-         );
+        );
     }
 
     public function getCurrentPageData()

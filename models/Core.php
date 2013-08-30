@@ -179,6 +179,15 @@ class KlearGallery_Model_Core
 
     protected function _getCurrentPage()
     {
+
+        $pageIndex = array(
+
+            'uploadTo' => 'upload',
+            'updatePic' => 'updatePic',
+            'removePic' => 'removePic',
+            'picturePk' => 'picture'
+        );
+
         if ($this->_request->getParam("uploadTo")) {
 
             return "upload";
@@ -629,23 +638,15 @@ class KlearGallery_Model_Core
             return;
         }
 
-        $maxSize = $this->_request->getParam("size");
-        $maxSizeId = $this->_request->getParam("sizeId");
-
-        //Resize rules
-        $resizeRule = null;
-        $widthGetter = 'get' . ucfirst($this->_getPictureWidthFieldName());
-        $heightGetter = 'get' . ucfirst($this->_getPictureHeightFieldName());
-        $resizeRuleGetter = 'get' . ucfirst($this->_getPictureResizePolicyFieldName());
-
-        if (!$maxSize && intval($maxSizeId) !== 0) {
-
-            $resizeRule = $this->_pictureSizeMapper->find($maxSizeId);
-
-            if (!$resizeRule) {
-                $this->_imageNotFound();
-                return null;
+        $width = $height = $rule = null;
+        try {
+            $dimensions = $this->_getDesiredImageSizes($image);
+            if ($dimensions) {
+                list($width, $height, $rule) = $dimensions;
             }
+        } catch (Exception $exception) {
+            $this->_imageNotFound();
+            return;
         }
 
         $options = array(
@@ -653,16 +654,15 @@ class KlearGallery_Model_Core
             'Content-type' => $image->getMimeType(),
             'Content-Disposition' => 'inline',
         );
-
         $options += $this->_defaultHeaders;
 
         //ETag control
         if ($image->getMd5Sum()) {
 
-            if ($maxSize) {
-                $eTag = md5($image->getMd5Sum() . $maxSize);
-            } else if ($resizeRule) {
-                $eTag = md5($image->getMd5Sum() . $resizeRule->$widthGetter() . 'x' . $resizeRule->$heightGetter() . '-' . $rule);
+            if (is_null($rule)) {
+                $eTag = md5($image->getMd5Sum() . $width . 'x' . $height . '-' . $rule);
+            } else if ($width) {
+                $eTag = md5($image->getMd5Sum() . $width);
             } else {
                 $eTag = $image->getMd5Sum();
             }
@@ -674,25 +674,62 @@ class KlearGallery_Model_Core
             }
         }
 
-        $binary = $image->getBinary();
-
-
-        if ($maxSize) {
-
-            $binary = $this->_resizeImage($image->getFilePath(), $maxSize, $maxSize);
-
-        } else if ($resizeRule) {
-
-
-            $width = $resizeRule->$widthGetter();
-            $height = $resizeRule->$heightGetter();
-            $rule = $resizeRule->$resizeRuleGetter();
+        if ($rule) {
 
             $binary = $this->_resizeImage($image->getFilePath(), $width, $height, $rule);
+
+        } else if ($width) {
+
+            $binary = $this->_resizeImage($image->getFilePath(), $width, $height);
+
+        } else {
+
+            $binary = $image->getBinary();
         }
 
         $fileSender = new Iron_Controller_Action_Helper_SendFileToClient();
         $fileSender->direct($binary, $options, true);
+    }
+
+    /**
+     * @return array (width, height, rule) or null for original image size
+     * @throws exception if no match
+     *
+     */
+    protected function _getDesiredImageSizes($image)
+    {
+        $maxSize = $this->_request->getParam("size");
+        if ($maxSize) {
+
+            return array($maxSize, $maxSize, 0);
+        }
+
+        //sizeId == 0 ==> tamaño original
+        $maxSizeId = intval($this->_request->getParam("sizeId"));
+        if ($maxSizeId === 0) {
+            return null;
+        }
+
+        //Resize rules
+        $resizeRule = null;
+        $widthGetter = 'get' . ucfirst($this->_getPictureWidthFieldName());
+        $heightGetter = 'get' . ucfirst($this->_getPictureHeightFieldName());
+        $resizeRuleGetter = 'get' . ucfirst($this->_getPictureResizePolicyFieldName());
+
+        if ($maxSizeId) {
+
+            $resizeRule = $this->_pictureSizeMapper->find($maxSizeId);
+
+            if ($resizeRule) {
+                return array(
+                    $resizeRule->$widthGetter(),
+                    $resizeRule->$heightGetter(),
+                    $resizeRule->$resizeRuleGetter()
+                );
+            }
+        }
+
+        throw new Exception("Unkown expected image dimensions");
     }
 
     protected function _fetchImageFso ($picturePk)

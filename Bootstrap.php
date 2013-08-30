@@ -16,11 +16,11 @@ class KlearGallery_Bootstrap extends Zend_Application_Module_Bootstrap
         if (array_key_exists('publicPictureRoute', $config)) {
 
             $route = new Zend_Controller_Router_Route_Regex(
-                        $config['publicPictureRoute']['route'],
-                        $config['publicPictureRoute']['defaults'],
-                        $config['publicPictureRoute']['map'],
-                        $config['publicPictureRoute']['reverse']
-                     );
+                $config['publicPictureRoute']['route'],
+                $config['publicPictureRoute']['defaults'],
+                $config['publicPictureRoute']['map'],
+                $config['publicPictureRoute']['reverse']
+            );
 
             $router->addRoute('klearGallery', $route);
         }

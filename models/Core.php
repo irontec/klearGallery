@@ -89,15 +89,15 @@ class KlearGallery_Model_Core
         }
 
         $this->_cache = Zend_Cache::factory(
-                'Core',
-                new Iron_Cache_Backend_File($backendOptions),
-                array(
-                    'lifetime' => 86400, //24h
-                    'automatic_cleaning_factor' => 0,
-                    'automatic_serialization' => false,
-                    'write_control' => false
-                )
-             );
+            'Core',
+            new Iron_Cache_Backend_File($backendOptions),
+            array(
+                'lifetime' => 86400, //24h
+                'automatic_cleaning_factor' => 0,
+                'automatic_serialization' => false,
+                'write_control' => false
+            )
+         );
     }
 
     public function getCurrentPageData()

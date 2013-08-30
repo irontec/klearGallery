@@ -617,8 +617,20 @@ class KlearGallery_Model_Core
 
     protected function _sendPictureToBrowser($picturePk)
     {
-        $maxSize = $this->_request->getParam("size", false);
-        $maxSizeId = $this->_request->getParam("sizeId", false);
+        $image = $this->_fetchImageFso($picturePk);
+
+        if (is_null($image)) {
+            $this->_imageNotFound();
+            return;
+        }
+
+        if (!$this->_secureArgumentMatch($image)) {
+            $this->_imageNotFound();
+            return;
+        }
+
+        $maxSize = $this->_request->getParam("size");
+        $maxSizeId = $this->_request->getParam("sizeId");
 
         //Resize rules
         $resizeRule = null;
@@ -632,25 +644,8 @@ class KlearGallery_Model_Core
 
             if (!$resizeRule) {
                 $this->_imageNotFound();
-                return;
+                return null;
             }
-        }
-
-        $picture = $this->_pictureMapper->find($picturePk);
-        if (!$picture) {
-            $this->_imageNotFound();
-            return;
-        }
-
-        $fileObjects = $picture->getFileObjects();
-        $fileObject = current($fileObjects);
-
-        $fileObjectGetter = 'fetch' . ucfirst($fileObject);
-        $image = $picture->$fileObjectGetter();
-
-        if (!$this->_secureArgumentMatch($image)) {
-
-            return;
         }
 
         $options = array(
@@ -681,6 +676,7 @@ class KlearGallery_Model_Core
 
         $binary = $image->getBinary();
 
+
         if ($maxSize) {
 
             $binary = $this->_resizeImage($image->getFilePath(), $maxSize, $maxSize);
@@ -699,6 +695,20 @@ class KlearGallery_Model_Core
         $fileSender->direct($binary, $options, true);
     }
 
+    protected function _fetchImageFso ($picturePk)
+    {
+        $picture = $this->_pictureMapper->find($picturePk);
+        if (!$picture) {
+            return null;
+        }
+
+        $fileObjects = $picture->getFileObjects();
+        $fileObject = current($fileObjects);
+
+        $fileObjectGetter = 'fetch' . ucfirst($fileObject);
+        return $picture->$fileObjectGetter();
+    }
+
     protected function _secureArgumentMatch(KlearMatrix_Model_Fso $image)
     {
         if ($this->_request->get("mainRouter") instanceof KlearMatrix_Model_RouteDispatcher) {
@@ -715,7 +725,6 @@ class KlearGallery_Model_Core
             || $this->_request->getParam('extension') !== $spectedFileExtension
         ) {
 
-            $this->_imageNotFound();
             return false;
         }
 
@@ -862,6 +871,17 @@ class KlearGallery_Model_Core
 
     protected function _prepareMappers()
     {
+        $this->_checkProperGalleryConfig();
+        $this->_checkProperPictureConfig();
+        $this->_checkProperSizeConfig();
+
+        $this->_galleryMapper = new $this->_mainConfig['galleries']['mapper'];
+        $this->_pictureMapper = new $this->_mainConfig['galleryPictures']['mapper'];
+        $this->_pictureSizeMapper = new $this->_mainConfig['pictureSizes']['mapper'];
+    }
+
+    protected function _checkProperGalleryConfig()
+    {
         if (
             !isset($this->_mainConfig['galleries'])
             || !isset($this->_mainConfig['galleries']['mapper'])
@@ -870,7 +890,10 @@ class KlearGallery_Model_Core
         ) {
             $this->_incompleteConfigException("galleries");
         }
+    }
 
+    protected function _checkProperPictureConfig()
+    {
         if (
             !isset($this->_mainConfig['galleryPictures'])
             || !isset($this->_mainConfig['galleryPictures']['mapper'])
@@ -879,7 +902,10 @@ class KlearGallery_Model_Core
         ) {
             $this->_incompleteConfigException("pictures");
         }
+    }
 
+    protected function _checkProperSizeConfig()
+    {
         if (
             !isset($this->_mainConfig['pictureSizes'])
             || !isset($this->_mainConfig['pictureSizes']['mapper'])
@@ -889,10 +915,6 @@ class KlearGallery_Model_Core
         ) {
             $this->_incompleteConfigException("sizes");
         }
-
-        $this->_galleryMapper = new $this->_mainConfig['galleries']['mapper'];
-        $this->_pictureMapper = new $this->_mainConfig['galleryPictures']['mapper'];
-        $this->_pictureSizeMapper = new $this->_mainConfig['pictureSizes']['mapper'];
     }
 
     protected function _incompleteConfigException ($section)

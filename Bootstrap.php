@@ -4,6 +4,10 @@ class KlearGallery_Bootstrap extends Zend_Application_Module_Bootstrap
 {
     protected function _initRoutes()
     {
+        if (!$this->_getConfigFilePath()) {
+            return;
+        }
+
         $frontController = Zend_Controller_Front::getInstance();
         $router = $frontController->getRouter();
 
@@ -31,7 +35,7 @@ class KlearGallery_Bootstrap extends Zend_Application_Module_Bootstrap
     protected function _getGalleryConfiguration()
     {
         $config =  new Zend_Config_Yaml(
-            $this->_getConfigPath(),
+            $this->_getConfigFilePath(),
             APPLICATION_ENV,
             array(
                 "yamldecoder" => "yaml_parse"
@@ -44,9 +48,14 @@ class KlearGallery_Bootstrap extends Zend_Application_Module_Bootstrap
     /**
      * Devuelve la ruta al fichero de configuración
      */
-    protected function _getConfigPath()
+    protected function _getConfigFilePath()
     {
-        return APPLICATION_PATH . '/configs/klear/klearGallery.yaml';
+        $file = APPLICATION_PATH . '/configs/klear/klearGallery.yaml';
+
+        if (! file_exists($file)) {
+            return null;
+        }
+        return $file;
     }
 
 }

@@ -179,15 +179,6 @@ class KlearGallery_Model_Core
 
     protected function _getCurrentPage()
     {
-
-        $pageIndex = array(
-
-            'uploadTo' => 'upload',
-            'updatePic' => 'updatePic',
-            'removePic' => 'removePic',
-            'picturePk' => 'picture'
-        );
-
         if ($this->_request->getParam("uploadTo")) {
 
             return "upload";
@@ -206,36 +197,40 @@ class KlearGallery_Model_Core
 
         } else if ($this->_request->getParam("galleryPk")) {
 
-            if ($action = $this->_request->getParam("picSizes")) {
-
-                if ($action == "edit") {
-
-                    return "picSizeEdit";
-
-                } else if ($action == "update") {
-
-                    return "picSizeSave";
-
-
-                } else if ($action == "new") {
-
-                    return "picSizeNew";
-
-                } else if ($action == "delete") {
-
-                    return "picSizeDelete";
-                }
-
-                return "picSizes";
-
-            } else {
-
-                return "gallery";
-            }
+            return $this->_getCurrentGalleryPage();
 
         } else {
 
             return "index";
+        }
+    }
+
+    protected function _getCurrentGalleryPage()
+    {
+        if ($action = $this->_request->getParam("picSizes")) {
+
+            if ($action == "edit") {
+
+                return "picSizeEdit";
+
+            } else if ($action == "update") {
+
+                return "picSizeSave";
+
+            } else if ($action == "new") {
+
+                return "picSizeNew";
+
+            } else if ($action == "delete") {
+
+                return "picSizeDelete";
+            }
+
+            return $this->_getCurrentGalleryPage();
+
+        } else {
+
+            return "gallery";
         }
     }
 
@@ -640,7 +635,7 @@ class KlearGallery_Model_Core
 
         $width = $height = $rule = null;
         try {
-            $dimensions = $this->_getDesiredImageSizes($image);
+            $dimensions = $this->_getDesiredImageSizes();
             if ($dimensions) {
                 list($width, $height, $rule) = $dimensions;
             }
@@ -674,21 +669,26 @@ class KlearGallery_Model_Core
             }
         }
 
-        if ($rule) {
-
-            $binary = $this->_resizeImage($image->getFilePath(), $width, $height, $rule);
-
-        } else if ($width) {
-
-            $binary = $this->_resizeImage($image->getFilePath(), $width, $height);
-
-        } else {
-
-            $binary = $image->getBinary();
-        }
+        $binary = $this->_getProperImageBinary($image, $width, $height, $rule);
 
         $fileSender = new Iron_Controller_Action_Helper_SendFileToClient();
         $fileSender->direct($binary, $options, true);
+    }
+
+    protected function _getProperImageBinary(KlearMatrix_Model_Fso $image, $width, $height, $rule)
+    {
+        if ($rule) {
+
+            return $this->_resizeImage($image->getFilePath(), $width, $height, $rule);
+
+        } else if ($width) {
+
+            return $this->_resizeImage($image->getFilePath(), $width, $height);
+
+        } else {
+
+            return $image->getBinary();
+        }
     }
 
     /**
@@ -696,7 +696,7 @@ class KlearGallery_Model_Core
      * @throws exception if no match
      *
      */
-    protected function _getDesiredImageSizes($image)
+    protected function _getDesiredImageSizes()
     {
         $maxSize = $this->_request->getParam("size");
         if ($maxSize) {
@@ -792,7 +792,7 @@ class KlearGallery_Model_Core
 
     protected function _imageNotFound()
     {
-        Zend_Controller_Front::getInstance()->getResponse()->setHttpResponseCode(404);
+        throw new Zend_Controller_Action_Exception('Image not found', 404);
     }
 
     protected function _resizeImage($imagePath, $width, $height, $rule = null)

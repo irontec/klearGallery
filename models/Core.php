@@ -98,20 +98,58 @@ class KlearGallery_Model_Core
 
     public function getCurrentPageData()
     {
-        $data = array();
-        $data['currentPage'] = $this->_getCurrentPage();
+        $data = array(
+            'currentPage' => $this->_request->getParam("section", "index"),
+            'currentAction' => $this->_request->getQuery("action"),
+        );
 
         switch ($data['currentPage']) {
 
             case 'index':
 
-                $data['galleries']  = $this->_getGalleries();
+                $resp = $this->_getGalleries();
+                if (is_array($resp)) {
+                    $data['galleries'] = $resp;
+                }
                 break;
 
             case 'gallery':
 
-                $data += $this->_getGallery();
+                $resp = $this->_getGallery();
+                if (is_array($resp)) {
+                    $data += $resp;
+                }
                 break;
+
+            case 'picture':
+
+                $resp = $this->_getPicturePageData();
+                if (is_array($resp)) {
+                    $data += $resp;
+                }
+
+                break;
+
+            case 'sizes':
+
+                $resp = $this->_getSizePageData();
+                if (is_array($resp)) {
+                    $data += $resp;
+                }
+                break;
+
+            default:
+
+                throw new Zend_Controller_Action_Exception('Page not found', 404);
+        }
+
+        return $data;
+    }
+
+
+    protected function _getPicturePageData ()
+    {
+        switch($this->_request->getQuery("action")) {
 
             case 'upload':
 
@@ -119,120 +157,64 @@ class KlearGallery_Model_Core
                 $this->_handleUpload();
                 break;
 
-            case 'removePic':
+            case 'update':
 
-                $picture = $this->_pictureMapper->find($this->_request->getParam('removePic'));
+                return $this->_updatePicture();
+                break;
+
+            case 'remove':
+
+                $picture = $this->_pictureMapper->find($this->_request->getParam('pk'));
                 $picture->delete();
                 $this->_view->success = true;
                 break;
 
-            case 'updatePic':
-
-                $this->_updatePicture();
+            case 'load':
+                return $this->_getPicture();
                 break;
 
-            case 'picture':
+        }
 
-                $picData = $this->_getPicture();
+        return array();
+    }
 
-                if ($picData) {
 
-                    $data += $picData;
-                }
-                break;
+    protected function _getSizePageData ()
+    {
+        switch($this->_request->getQuery("action")) {
 
-            case 'picSizeDelete':
+            case 'delete':
 
                 $this->_pictureSizeMapper->find($this->_request->getParam("pk"))->delete();
                 $this->_view->success = true;
                 break;
 
-            case 'picSizeEdit':
+            case 'edit':
 
-                $data += $this->_getPictureSizeEditScreenData();
+                return $this->_getPictureSizeEditScreenData();
                 break;
 
-            case 'picSizeNew':
+            case 'new':
 
-                $data += $this->_getPictureSizeNewScreenData();
+                return $this->_getPictureSizeNewScreenData();
                 break;
 
-            case 'picSizeSave':
-
+            case 'save':
                  if ($this->_savePictureSize()) {
-
                      $this->_view->success = true;
                  };
-
-            case 'picSizes':
-
-                $data += $this->_getPictureAvailableSizeConfigurations();
                 break;
 
-            default:
+            case 'load':
 
-                throw new Exception("Unknown page");
+                return $this->_getPictureAvailableSizeConfigurations();
+                break;
+
         }
 
-        return $data;
+        return array();
     }
 
-    protected function _getCurrentPage()
-    {
-        if ($this->_request->getParam("uploadTo")) {
-
-            return "upload";
-
-        } else if ($this->_request->getParam("updatePic")) {
-
-            return "updatePic";
-
-        } else if ($this->_request->getParam("removePic")) {
-
-            return "removePic";
-
-        } else if ($this->_request->getParam("picturePk")) {
-
-            return "picture";
-
-        } else if ($this->_request->getParam("galleryPk")) {
-
-            return $this->_getCurrentGalleryPage();
-
-        } else {
-
-            return "index";
-        }
-    }
-
-    protected function _getCurrentGalleryPage()
-    {
-        if ($action = $this->_request->getParam("picSizes")) {
-
-            if ($action == "edit") {
-
-                return "picSizeEdit";
-
-            } else if ($action == "update") {
-
-                return "picSizeSave";
-
-            } else if ($action == "new") {
-
-                return "picSizeNew";
-
-            } else if ($action == "delete") {
-
-                return "picSizeDelete";
-            }
-
-            return $this->_getCurrentGalleryPage();
-
-        } else {
-
-            return "gallery";
-        }
-    }
 
     //NOTA: Este método asigna valores directamente a la vista
     /**
@@ -297,7 +279,7 @@ class KlearGallery_Model_Core
         $model->$heightSetter($this->_request->getParam($heightFieldName))
                      ->$widthSetter($this->_request->getParam($widthFieldName))
                      ->$policySetter($this->_request->getParam($policyFieldName))
-                     ->$relationSetter($this->_request->getParam("galleryPk"));
+                     ->$relationSetter($this->_request->getParam("parentPk"));
 
         return $model->save();
     }
@@ -403,9 +385,9 @@ class KlearGallery_Model_Core
         $defaultItemsPerPage = $this->_request->getParam("isDialog") === "true" ? 8 : 14;
         $itemsPerPage = $this->_request->getParam("itemsPerPage", $defaultItemsPerPage);
         $currentPage = $this->_request->getParam("page", 1);
-        $galleryPk = $this->_request->getParam("galleryPk");
+        $galleryPk = $this->_request->getParam("pk");
 
-        $data['galleryId'] = $this->_request->getParam("galleryPk");
+        $data['galleryId'] = $this->_request->getParam("pk");
         $data +=  $this->_getPictures($galleryPk, $itemsPerPage, $currentPage);
         $data['publicImgRoute'] = $this->_getPublicImageRoute($data);
 
@@ -420,7 +402,7 @@ class KlearGallery_Model_Core
     {
         $data = array();
 
-        $pk = $this->_request->getParam("picturePk");
+        $pk = $this->_request->getParam("pk");
         $preview = $this->_request->getParam("preview", false);
 
         if ($preview) {
@@ -444,7 +426,7 @@ class KlearGallery_Model_Core
 
     protected function _updatePicture()
     {
-        $picture = $this->_pictureMapper->find($this->_request->getParam('updatePic'));
+        $picture = $this->_pictureMapper->find($this->_request->getParam('pk'));
 
         foreach ($this->_request->getPost() as $field => $value) {
 
@@ -463,7 +445,7 @@ class KlearGallery_Model_Core
     protected function _getPictureSizeEditScreenData()
     {
         $data = array();
-        $data["parentPk"] = $this->_request->getParam("galleryPk");
+        $data["parentPk"] = $this->_request->getParam("parentPk");
         $data['sizes'] = $this->_getPictureSizes($this->_request->getParam("galleryPk"), $this->_request->getParam("pk"));
         $data['widthField'] = $this->_getPictureWidthFieldName();
         $data['heightField'] = $this->_getPictureHeightFieldName();
@@ -476,7 +458,7 @@ class KlearGallery_Model_Core
     protected function _getPictureSizeNewScreenData()
     {
         $data = array();
-        $data["parentPk"] = $this->_request->getParam("galleryPk");
+        $data["parentPk"] = $this->_request->getParam("parentPk");
         $data['sizes'] = $this->_getPictureSizes(null, 0);
         $data['widthField'] = $this->_getPictureWidthFieldName();
         $data['heightField'] = $this->_getPictureHeightFieldName();
@@ -490,8 +472,8 @@ class KlearGallery_Model_Core
     {
         $data = array();
 
-        $data["parentPk"] = $this->_request->getParam("galleryPk");
-        $data['sizes'] = $this->_getPictureSizes($this->_request->getParam("galleryPk"));
+        $data["parentPk"] = $this->_request->getParam("pk");
+        $data['sizes'] = $this->_getPictureSizes($this->_request->getParam("pk"));
         $data['widthField'] = $this->_getPictureWidthFieldName();
         $data['heightField'] = $this->_getPictureHeightFieldName();
         $data['policyField'] = $this->_getPictureResizePolicyFieldName();
@@ -861,10 +843,10 @@ class KlearGallery_Model_Core
 
     protected function _getParentRelationFieldName($seccion = null)
     {
-        if (is_null($seccion)) {
+        /*if (is_null($seccion)) {
 
             $seccion = $this->_getCurrentPage();
-        }
+        }*/
 
         if ($seccion == 'picSizes') {
 

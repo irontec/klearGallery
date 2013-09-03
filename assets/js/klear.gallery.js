@@ -208,7 +208,7 @@
 
                 qqOptions = {
                     element: $(".galleryContent div.uploader", $(this.layout)).get(0),
-                    action: this.options.data.baseUrl,
+                    action: this.options.data.baseUrl + "&section=picture&action=upload",
                     params: {uploadTo: this.options.data.galleryId},
                     allowedExtensions: ['jpeg', 'jpg', 'png', 'gif'],
                     dragAndDrop: true,
@@ -240,6 +240,7 @@
                     onComplete : function(id, fileName, result) {
 
                         var $list = $(".qq-gallery-upload-list", $(this._element).parent());
+                        var parentContext = _self;
 
                         if (result.error) {
 
@@ -249,7 +250,10 @@
                         }
 
                         $list.html('');
-                        _self._openGallery($("<a/>").attr("href", _self.options.data.baseUrl + "&picturePk=" + result.picturePk));
+                        var targetLink = _self.options.data.baseUrl + "&section=picture&action=load&pk=" + result.picturePk;
+                        _self._openGallery($("<a/>").attr("href", targetLink), function () {
+                            $(parentContext.layout).find("a.edit:visible").trigger("click");
+                        });
                     },
 
                     showMessage : function(message) {
@@ -317,7 +321,8 @@
             $(this.layout).find("img.selectable").css("cursor", "pointer").click(function () {
 
                 //Abrir imagen en una nueva pestaña a tamaño original
-                window.open($(this).attr("rel"), "newTab");
+                var imgSrc = $(this).data("handler").replace("#sizeId#", "0");
+                window.open(imgSrc, "newTab");
             });
        },
 
@@ -367,9 +372,10 @@
             }
        },
 
-        _openGallery: function (node) {
+        _openGallery: function (node, callback) {
 
             var _self = this;
+            var onLoadTrigger = callback || function () {};
 
             $.getJSON(node.attr("href") + "&isDialog=" + this.isDialog, function (resp) {
 
@@ -401,6 +407,7 @@
                     setTimeout(function () {
                         parentContext._registerBaseEvents();
                         parentContext._registerGalleryEvents();
+                        onLoadTrigger();
                     }, 500);
                 }
             });

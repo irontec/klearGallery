@@ -21,13 +21,13 @@ ${( _self = this ),''}
   {{each(idx,gallery) this.data.galleries}}
   <tr class="ui-widget-content">
     <td>
-        <a href="${baseUrl}&galleryPk=${gallery.pk}">${gallery.name}</a>
+        <a href="${baseUrl}&section=gallery&action=load&pk=${gallery.pk}">${gallery.name}</a>
     </td>
     <td>
         ${gallery.recordCount}
     </td>
     <td>
-        <a href="${baseUrl}&galleryPk=${gallery.pk}&picSizes=true">
+        <a href="${baseUrl}&section=sizes&action=load&pk=${gallery.pk}">
             <span class="ui-silk inline ui-silk-cog"></span>
         </a>
     </td>
@@ -37,7 +37,7 @@ ${( _self = this ),''}
 </table>
 {{/if}}
 
-{{if this.data.currentPage == "gallery"}}
+{{if this.data.currentPage == "gallery" && this.data.currentAction == "load"}}
     <div class="topMenu">
         <a class="action ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" title="<?= $this->translate("volver");?>" href="${baseUrl}">
             <span class="ui-button-text">
@@ -68,8 +68,8 @@ ${( _self = this ),''}
         <ul class="pictureList">
         {{each(idx,picture) this.data.pictures}}
             <li>
-                <a href="${baseUrl}&picturePk=${picture.pk}&page=${_self.data.paginator.current}">
-                    <img rel="${publicImgRoute}?pk=${picture.pk}&size=100" src="${baseUrl}&picturePk=${picture.pk}&preview=true&size=100" />
+                <a href="${baseUrl}&section=picture&action=load&pk=${picture.pk}&page=${_self.data.paginator.current}">
+                    <img rel="${publicImgRoute}?pk=${picture.pk}&size=100" src="${baseUrl}&section=picture&action=load&pk=${picture.pk}&preview=true&size=100" />
                     <br />
                     ${picture.name}
                 </a>
@@ -88,15 +88,15 @@ ${( _self = this ),''}
         </div>
 
         <div class="paginator ui-widget-content ui-corner-all">
-            <a href="${this.data.baseUrl}&galleryPk=${this.data.galleryId}&page=${this.data.paginator.first}" class="ui-state-default">«</a>
-            <a href="${this.data.baseUrl}&galleryPk=${this.data.galleryId}&page={{if ( this.data.paginator.previous)}}${ this.data.paginator.previous}{{else}}${ this.data.paginator.current}{{/if}}" class="ui-state-default">‹</a>
+            <a href="${this.data.baseUrl}&section=gallery&action=load&pk=${this.data.galleryId}&page=${this.data.paginator.first}" class="ui-state-default">«</a>
+            <a href="${this.data.baseUrl}&section=gallery&action=load&pk=${this.data.galleryId}&page={{if ( this.data.paginator.previous)}}${ this.data.paginator.previous}{{else}}${ this.data.paginator.current}{{/if}}" class="ui-state-default">‹</a>
 
             {{each(idx,_curPage) this.data.paginator.pagesInRange}}
-                <a href="${_self.data.baseUrl}&galleryPk=${_self.data.galleryId}&page=${_curPage}" class="{{if (_curPage== _self.data.paginator.current)}}ui-state-active{{else}}ui-state-default{{/if}}" data-page="${_curPage}">${_curPage}</a>
+                <a href="${_self.data.baseUrl}&section=gallery&action=load&pk=${_self.data.galleryId}&page=${_curPage}" class="{{if (_curPage== _self.data.paginator.current)}}ui-state-active{{else}}ui-state-default{{/if}}" data-page="${_curPage}">${_curPage}</a>
             {{/each}}
 
-            <a class="ui-state-default" href="${this.data.baseUrl}&galleryPk=${this.data.galleryId}&page={{if (this.data.paginator.next)}}${this.data.paginator.next}{{else}}${ this.data.paginator.lastPageInRange}{{/if}}">›</a>
-            <a class="ui-state-default" href="${this.data.baseUrl}&galleryPk=${this.data.galleryId}&page=${ this.data.paginator.lastPageInRange}">»</a>
+            <a class="ui-state-default" href="${this.data.baseUrl}&section=gallery&action=load&pk=${this.data.galleryId}&page={{if (this.data.paginator.next)}}${this.data.paginator.next}{{else}}${ this.data.paginator.lastPageInRange}{{/if}}">›</a>
+            <a class="ui-state-default" href="${this.data.baseUrl}&section=gallery&action=load&pk=${this.data.galleryId}&page=${ this.data.paginator.lastPageInRange}">»</a>
         </div>
     </div>
 
@@ -105,7 +105,7 @@ ${( _self = this ),''}
 {{if this.data.currentPage == "picture"}}
     <div class="topMenu">
         <a class="return action ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" title="<?= $this->translate("Volver");?>"
-            href="${baseUrl}&galleryPk=${this.data.picture[this.data.fieldToParentTable]}&page=${this.data.page}">
+            href="${baseUrl}&section=gallery&action=load&pk=${this.data.picture[this.data.fieldToParentTable]}&page=${this.data.page}">
             <span class="ui-button-text">
                 <span title="<?= $this->translate("Volver"); ?>" class="ui-silk inline ui-silk-arrow-left"></span> <?= $this->translate("Volver"); ?>
             </span>
@@ -113,7 +113,7 @@ ${( _self = this ),''}
 
         <div class="right">
             <a class="delete action ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" title="<?= $this->translate("Eliminar");?>"
-                rel="${baseUrl}&removePic=${this.data.picture.pk}">
+                rel="${baseUrl}&section=picture&action=remove&pk=${this.data.picture.pk}">
                 <span class="ui-button-text">
                     <span title="<?= $this->translate("Eliminar");?>" class="ui-silk inline ui-silk-camera-delete"></span> <?= $this->translate("Eliminar");?>
                 </span>
@@ -162,7 +162,7 @@ ${( _self = this ),''}
                      data-extension="${this.data.picture.extension}"
                      data-pk="${this.data.picture.pk}"
                      class="selectable"
-                     src="${baseUrl}&picturePk=${this.data.picture.pk}&preview=true" style="max-width:370px;" />
+                     src="${baseUrl}&section=picture&action=load&pk=${this.data.picture.pk}&preview=true" style="max-width:370px;" />
             </div>
             <div class="ui-widget-content ui-corner-all assistant" style="display:none;">
                 <div class="fieldInfo-boxinfo ui-state-highlight ui-corner-all" style="display: none;">
@@ -176,7 +176,7 @@ ${( _self = this ),''}
                 <div class="ui-widget-header photoTitle">
                     <strong><?= $this->translate("Titulo:");?></strong>
                     <form method="POST" style="display:inline;"
-                     action="${baseUrl}&updatePic=${this.data.picture.pk}">
+                     action="${baseUrl}&section=picture&action=update&pk=${this.data.picture.pk}">
                         <span>${this.data.picture.title}</span>
                         <input size="17" style="display:none;" type="text" name="${this.data.picture.titleFieldName}" value="${this.data.picture.title}" />
                     </form>
@@ -200,17 +200,17 @@ ${( _self = this ),''}
     </div>
 {{/if}}
 
-{{if this.data.currentPage == "picSizes"}}
+{{if this.data.currentPage == "sizes" && this.data.currentAction == "load" }}
     <div class="topMenu">
         <a class="action ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only return" title="Volver"
-           href="${baseUrl}&galleryPk=${this.data.sizes[this.data.fieldToParentTable]}">
+           href="${baseUrl}&section=index&action=load&pk=${this.data.sizes[this.data.fieldToParentTable]}">
             <span class="ui-button-text">
                 <span title="Volver" class="ui-silk inline ui-silk-arrow-left return"></span> <?= $this->translate("Volver");?>
             </span>
         </a>
         <div class="right">
             <a class="action ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
-               title="<?= $this->translate("Añadir"); ?>" href="${_self.data.baseUrl}&galleryPk=${_self.data.parentPk}&picSizes=new">
+               title="<?= $this->translate("Añadir"); ?>" href="${_self.data.baseUrl}&section=sizes&action=new&parentPk=${_self.data.parentPk}">
                 <span class="ui-button-text">
                     <span title="<?= $this->translate("Añadir"); ?>" class="ui-silk inline ui-silk-add"></span>
                     <?= $this->translate("Añadir"); ?>
@@ -250,12 +250,12 @@ ${( _self = this ),''}
             ${row.policy.value}
         </td>
         <td>
-            <a title="<?= $this->translate("Editar");?>" href="${_self.data.baseUrl}&galleryPk=${_self.data.parentPk}&picSizes=edit&pk=${row.pk}"
+            <a title="<?= $this->translate("Editar");?>" href="${_self.data.baseUrl}&section=sizes&action=edit&parentPk=${_self.data.parentPk}&pk=${row.pk}"
                class="option screen default ui-state-nojump">
                 <span class="ui-silk inline ui-silk-pencil"></span>
             </a>
             <a title="<?= $this->translate("Delete");?>" data-dialog="pagEstaticasDel_dialog" class="option ui-state-nojump delete"
-               rel="${_self.data.baseUrl}&galleryPk=${_self.data.parentPk}&picSizes=delete&pk=${row.pk}"
+               rel="${_self.data.baseUrl}&section=sizes&action=delete&parentPk=${_self.data.parentPk}&pk=${row.pk}"
             >
                 <span class="ui-silk inline ui-silk-bin"></span>
             </a>
@@ -267,16 +267,16 @@ ${( _self = this ),''}
 
 {{/if}}
 
-{{if this.data.currentPage == "picSizeEdit" || this.data.currentPage == "picSizeNew" }}
+{{if this.data.currentPage == "sizes" && (this.data.currentAction == "edit" || this.data.currentAction == "new") }}
 <div class="ui-tabs-panel ui-widget-content ui-corner-bottom">
     <a class="action return ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" title="Volver"
-       href="${baseUrl}&galleryPk=${this.data.parentPk}&picSizes=true">
+       href="${baseUrl}&section=sizes&action=load&pk=${this.data.parentPk}">
         <span class="ui-button-text">
             <span title="Volver" class="ui-silk inline ui-silk-arrow-left"></span> <?= $this->translate("Volver");?>
         </span>
     </a>
 
-    <form method="POST" class="klearMatrix_form" action="${_self.data.baseUrl}&galleryPk=${this.data.parentPk}&picSizes=update&pk=${this.data.sizes[0].pk}">
+    <form method="POST" class="klearMatrix_form" action="${_self.data.baseUrl}&section=sizes&action=save&parentPk=${this.data.parentPk}&pk=${this.data.sizes[0].pk}">
         <fieldset class="ui-widget-content ui-corner-all">
             <legend class="ui-widget-header ui-corner-all"><?php echo $this->translate("Editar"); ?></legend>
 

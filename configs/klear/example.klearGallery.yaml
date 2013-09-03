@@ -1,13 +1,12 @@
 production:
   galleries:
-    mapper: Cianoplan\Mapper\Sql\KlearImageGalleries
+    mapper: Appnamespace\Mapper\Sql\KlearImageGalleries
     titleFieldName: name
   galleryPictures:
-    mapper: Cianoplan\Mapper\Sql\KlearImageGalleriesPictures
+    mapper: Appnamespace\Mapper\Sql\KlearImageGalleriesPictures
     titleFieldName: titulo
-    slugFieldname: slug
   pictureSizes:
-    mapper: Cianoplan\Mapper\Sql\KlearImageGalleriesSizes
+    mapper: Appnamespace\Mapper\Sql\KlearImageGalleriesSizes
     widthFieldName: width
     heightFieldName: height
     policyFieldName: rule

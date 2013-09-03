@@ -1,0 +1,39 @@
+production:
+  main:
+    module: klearMatrix
+  defaultScreen: GalleryList_screen
+  screens:
+    GalleryList_screen:
+      dashboard:
+        class: Appnamespace_Model_CustomDashboardForGallery
+      class: ui-silk-images
+      module: klearGallery
+      controller: index
+
+  dialogs:
+    Gallery_dialog:
+      module: klearGallery
+      controller: index
+      config:
+        galleries:
+          mapper: Appnamespace\Mapper\Sql\KlearImageGalleries
+          titleFieldName: name
+
+        galleryPictures:
+          mapper: Appnamespace\Mapper\Sql\KlearImageGalleriesPictures
+          titleFieldName: titulo
+        pictureSizes:
+          mapper: Appnamespace\Mapper\Sql\KlearImageGalleriesSizes
+          widthFieldName: width
+          heightFieldName: height
+      action: dialog
+      class: ui-silk-book-go
+      title:
+        i18n:
+          es: "Galería"
+      label: true
+
+testing:
+  _extends: production
+development:
+  _extends: production

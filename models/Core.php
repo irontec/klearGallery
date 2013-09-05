@@ -430,37 +430,7 @@ class KlearGallery_Model_Core
 
             case 'save':
 
-                $params = $this->_request->getParams();
-                unset($params['mainRouter']);
-
-                $galleryStructure = $this->_getGalleryStructure();
-
-
-                if ($this->_request->getParam("pk")) {
-
-                    $newModel = $this->_galleryMapper->find($this->_request->getParam("pk"));
-                    if (! $newModel) {
-                        throw new Zend_Controller_Action_Exception("Element not found", 500);
-                    }
-                } else {
-                    $newModel = $this->_galleryMapper->loadModel(null);
-                }
-
-                if ($galleryStructure['isMultilang']) {
-
-                    foreach ($galleryStructure['availableLangs'] as $language) {
-                        $expectedPostVarName = $galleryStructure['field'] . $language;
-                        if ($this->_request->getParam($expectedPostVarName)) {
-                            $setter = 'set' . ucfirst($galleryStructure['field']);
-                            $newModel->$setter($this->_request->getParam($expectedPostVarName), $language);
-                        } else {
-                            $setter = 'set' . ucfirst($galleryStructure['field']);
-                            $newModel->$setter($this->_request->getParam($galleryStructure['field']), $language);
-                        }
-                    }
-                }
-
-                $this->_view->success =  $newModel->save();
+                $this->_getGallerySaveAction();
                 break;
 
             default:
@@ -479,9 +449,42 @@ class KlearGallery_Model_Core
                 break;
         }
 
-
-
         return $data;
+    }
+
+
+    protected function _getGallerySaveAction()
+    {
+        $params = $this->_request->getParams();
+        unset($params['mainRouter']);
+
+        $galleryStructure = $this->_getGalleryStructure();
+
+        if ($this->_request->getParam("pk")) {
+
+            $newModel = $this->_galleryMapper->find($this->_request->getParam("pk"));
+            if (! $newModel) {
+                throw new Zend_Controller_Action_Exception("Element not found", 500);
+            }
+        } else {
+            $newModel = $this->_galleryMapper->loadModel(null);
+        }
+
+        if ($galleryStructure['isMultilang']) {
+
+            foreach ($galleryStructure['availableLangs'] as $language) {
+                $expectedPostVarName = $galleryStructure['field'] . $language;
+                if ($this->_request->getParam($expectedPostVarName)) {
+                    $setter = 'set' . ucfirst($galleryStructure['field']);
+                    $newModel->$setter($this->_request->getParam($expectedPostVarName), $language);
+                } else {
+                    $setter = 'set' . ucfirst($galleryStructure['field']);
+                    $newModel->$setter($this->_request->getParam($galleryStructure['field']), $language);
+                }
+            }
+        }
+
+        $this->_view->success =  $newModel->save();
     }
 
     /**

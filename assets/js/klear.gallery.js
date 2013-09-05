@@ -49,6 +49,7 @@
 
                 this._registerBaseEvents();
                 this._registerGalleryEvents();
+                this._initStyles();
             }
         },
         _registerGalleryEvents: function () {
@@ -65,6 +66,7 @@
 
             this._initNewImageHandler();
             this._initImageEditHandler();
+            this._initNewGalleryHandler();
             this._initDeleteHandler();
             this._initImageSizeEditHandler();
             this._initContext();
@@ -80,6 +82,7 @@
 
                     e.preventDefault();
                     e.stopPropagation();
+
                     $(this).parent().children().toggle();
 
                     var containners = $(this).parents(".klear-gallery").find("div.galleryContent").children();
@@ -88,9 +91,60 @@
             }
        },
 
+
+       _initNewGalleryHandler: function () {
+
+            var _self = this;
+            var newGallery = $(this.layout).find("a.newGallery");
+            if (newGallery.length > 0 ) {
+
+                newGallery.css("cursor", "pointer").off("click").on("click", function (e) {
+
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    var containners = $(this).parents(".klear-gallery").children();
+                    containners.toggle();
+
+                    //reset form values
+                    containners.filter(":visible").find("input").attr("value", "");
+                });
+            }
+
+            $(this.layout).find("a.editGallery").off('click').on('click', function (e) {
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                var newGalleryButton = newGallery;
+
+                $.getJSON($(this).attr("href"), function (resp) {
+
+                    newGalleryButton.trigger('click');
+                    var formulario = $(newGalleryButton).parents(".klear-gallery").find("form:visible");
+
+                    var primaryKey = resp.data.galleryData[resp.data.galleryStructure.pkName];
+                    formulario.find("input[name=pk]").attr("value", primaryKey);
+
+                    var titleField = resp.data.galleryStructure.field;
+                    if (resp.data.galleryStructure.isMultilang) {
+                        var languages = resp.data.galleryStructure.availableLangs;
+                        for (var languageIdx in languages) {
+                            var val = resp.data.galleryData[titleField + "_" + languages[languageIdx]];
+                            formulario.find("input[name="+titleField + languages[languageIdx]  + "]").attr("value", val);
+                        }
+                    } else {
+                        var val = resp.data.galleryData[titleField];
+                        formulario.find("input[name="+ titleField + "]").attr("value", val);
+                    }
+                });
+            });
+       },
+
        _initDeleteHandler: function () {
 
             var removeImg = $(this.layout).find("a.delete");
+
             if (removeImg.length > 0 ) {
 
                 removeImg.css("cursor", "pointer").off("click").on("click", function (e) {
@@ -119,6 +173,9 @@
 
                                             _self.parents("div.topMenu").find("a.return").trigger("click");
                                         }
+                                    } else {
+
+                                        //TODO: Mostrar mensaje de error
                                     }
                                 });
                             },
@@ -306,16 +363,13 @@
        _initContext: function () {
 
            if (this.isDialog) {
-
                 this._initDialogContext();
-
            } else {
-
                this._initScreenContext();
            }
        },
 
-       _initScreenContext : function () {
+       _initScreenContext: function () {
 
             var _self = this;
             $(this.layout).find("img.selectable").css("cursor", "pointer").click(function () {
@@ -326,7 +380,7 @@
             });
        },
 
-       _initDialogContext : function() {
+       _initDialogContext: function() {
 
             var _self = this;
 
@@ -336,7 +390,7 @@
                 sizeSelector.show();
                 sizeSelector.find("ul.selectboxit-options").css("right", "0");
 
-                $(_self.layout).find("img.selectable").css("cursor", "pointer").click(
+                $(_self.layout).find("img.selectable").css("cursor", "pointer").off("click").on("click",
                     function () {
 
                           var wym = _self.options._wym;
@@ -353,16 +407,18 @@
 
                           var sizeOption = $("select.sizeSelector option:selected", _self.layout);
                           var sizeOptionValue = sizeOption.attr("value") ? sizeOption.attr("value") : 0;
-                          var imgSrc = $(this).data("handler").replace("#sizeId#", sizeOptionValue);
+                          var imgUri = $(this).data("uri").replace("#sizeId#", sizeOptionValue);
+                          var imgSrc = $(this).data("baseurl") + imgUri;
 
                           var execResp = _self.options._wym._doc.execCommand("insertImage", false, imgSrc);
                           var container =  _self.options._wym.selected();
 
                           if (container && container.tagName.toLowerCase() === WYMeditor.BODY) {
-
                              _self.options._wym._exec(WYMeditor.FORMAT_BLOCK, WYMeditor.P);
                           }
 
+                          var injectedImg = $(_self.options._wym._doc).find("img[src='"+ imgSrc +"']");
+                          injectedImg.attr("data-uri", imgUri);
                           var closeButton = _self.layout.next().find("div.ui-dialog-buttonset button");
 
                           $(_self.options._wym._doc).trigger("keyup");
@@ -380,7 +436,6 @@
             $.getJSON(node.attr("href") + "&isDialog=" + this.isDialog, function (resp) {
 
                 if (resp.data.templateName) {
-
 
                     _self.options.data = resp.data;
                     var $appliedTemplate = _self._loadTemplate(resp.data.templateName);
@@ -407,11 +462,30 @@
                     setTimeout(function () {
                         parentContext._registerBaseEvents();
                         parentContext._registerGalleryEvents();
+                        parentContext._initStyles();
                         onLoadTrigger();
                     }, 500);
                 }
             });
         },
+
+        _initStyles: function () {
+
+            var tr = $('table.kMatrix tr', this.layout);
+            $("td:not(:last-child)", tr).on('mouseenter mouseleave',function() {
+
+                $("td:not(:last-child)", $(this).parent('tr')).toggleClass("ui-state-highlight");
+                $(this).parent('tr').toggleClass("pointer");
+                $("a.option.default", $(this).parent('tr')).toggleClass("ui-state-active");
+
+            }).on('mouseup',function(e) {
+                // Haciendo toda la tupla clickable para la default option
+                e.stopPropagation();
+                e.preventDefault();
+
+                $("a:first", $(this).parents("tr")).trigger("click");
+            });
+        }
     });
 
     $.widget.bridge("klearMatrixGallery", $.klearmatrix.genericscreen);

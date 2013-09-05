@@ -1,41 +1,116 @@
 ${( _self = this ),''}
 <div class="klear-gallery">
 {{if this.data.currentPage == "index"}}
-<table class="kMatrix">
-  <caption class="ui-state-active ui-priority-primary">
-        <?= $this->translate("Listado de Galerías"); ?>
-        <span class="extraCaptionInfo"> <?= $this->translate("Total"); ?>:
-        <strong>${this.data.galleries.length}</strong> <?= $this->translate("Registros"); ?> </span>
-  </caption>
-  <tbody>
-  <tr class="ui-widget-content">
-    <th class="ui-widget-header" data-field="pk">
-      <span class="title"><?= $this->translate("Galería"); ?></span>
-    </th>
-    <th class="ui-widget-header" data-field="name">
-      <span class="title"><?= $this->translate("Nº Elementos"); ?></span>
-    </th>
-    <th class="ui-widget-header" data-field="name">
-      <span class="title"><?= $this->translate("Opciones"); ?></span>
-    </th>
-  {{each(idx,gallery) this.data.galleries}}
-  <tr class="ui-widget-content">
-    <td>
-        <a href="${baseUrl}&section=gallery&action=load&pk=${gallery.pk}">${gallery.name}</a>
-    </td>
-    <td>
-        ${gallery.recordCount}
-    </td>
-    <td>
-        <a href="${baseUrl}&section=sizes&action=load&pk=${gallery.pk}">
-            <span class="ui-silk inline ui-silk-cog"></span>
+
+    <div>
+        <div class="topMenu">
+            <div>
+                <a class="action ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only newGallery"
+                   title="<?= $this->translate("Nueva galería"); ?>">
+                    <span class="ui-button-text">
+                        <span title="<?= $this->translate("Nueva galería"); ?>" class="ui-silk inline ui-silk-add"></span>
+                        <?= $this->translate("Nueva galería"); ?>
+                    </span>
+                </a>
+            </div>
+        </div>
+        <br style="clear:both;"/>
+        <table class="kMatrix">
+          <caption class="ui-state-active ui-priority-primary">
+                <?= $this->translate("Listado de Galerías"); ?>
+                <span class="extraCaptionInfo"> <?= $this->translate("Total"); ?>:
+                <strong>${this.data.galleries.length}</strong> <?= $this->translate("Registros"); ?> </span>
+          </caption>
+          <tbody>
+          <tr class="ui-widget-content">
+            <th class="ui-widget-header" data-field="pk">
+              <span class="title"><?= $this->translate("Galería"); ?></span>
+            </th>
+            <th class="ui-widget-header" data-field="name">
+              <span class="title"><?= $this->translate("Nº Elementos"); ?></span>
+            </th>
+            <th class="ui-widget-header" data-field="name">
+              <span class="title"><?= $this->translate("Opciones"); ?></span>
+            </th>
+          {{each(idx,gallery) this.data.galleries}}
+          <tr class="ui-widget-content">
+            <td class="ui-widget-content default">
+                <a href="${baseUrl}&section=gallery&action=load&pk=${gallery.pk}">${gallery.name}</a>
+            </td>
+            <td class="ui-widget-content">
+                ${gallery.recordCount}
+            </td>
+            <td class="ui-widget-content">
+                <a href="${baseUrl}&section=sizes&action=load&pk=${gallery.pk}" title="Gestionar tamaños">
+                    <span class="ui-silk inline ui-silk-cog"></span>
+                </a>
+                <a href="${baseUrl}&section=gallery&action=edit&pk=${gallery.pk}" class="editGallery" title="Editar Galería">
+                    <span class="ui-silk inline ui-silk-pencil"></span>
+                </a>
+                <a rel="${baseUrl}&section=gallery&action=remove&pk=${gallery.pk}"  title="Eliminar" class="delete">
+                    <span class="ui-silk inline ui-silk-bin"></span>
+                </a>
+            </td>
+          </tr>
+          {{/each}}
+          </tbody>
+        </table>
+    </div>
+
+    <div style="display:none;" class="ui-tabs-panel ui-widget-content ui-corner-bottom">
+        <a class="action return ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" title="Volver"
+           href="${baseUrl}&section=index">
+            <span class="ui-button-text">
+                <span title="Volver" class="ui-silk inline ui-silk-arrow-left"></span> <?= $this->translate("Volver");?>
+            </span>
         </a>
-    </td>
-  </tr>
-  {{/each}}
-  </tbody>
-</table>
+
+        <form method="POST" class="klearMatrix_form" action="${_self.data.baseUrl}&section=gallery&action=save">
+            <fieldset class="ui-widget-content ui-corner-all">
+                <legend class="ui-widget-header ui-corner-all"><?php echo $this->translate("Galería"); ?></legend>
+
+                {{if this.data.galleryStructure.isMultilang == true}}
+
+                    <div class="container ui-widget-content ui-corner-all">
+                        <label rel="name" for="name48110">${this.data.galleryStructure.field}</label>
+                        <dl class="multiLanguage">
+                            {{each(idx,language) this.data.galleryStructure.availableLangs}}
+                                <dt class="selected">
+                                    <label class="lang">[${language}]</label>
+                                </dt>
+                                <dd class="selected">
+                                    <input type="text" name="${_self.data.galleryStructure.field}${language}" value="" class="ui-widget ui-state-default ui-corner-all" style="width: 142px; ">
+                                </dd>
+                            {{/each}}
+                        </dl>
+                    </div>
+
+                {{else}}
+
+                    <div class="container ui-widget-content ui-corner-all">
+                        <label>${this.data.galleryStructure.field}</label>
+                        <input type="text" value="${this.data.galleryStructure.field}" name="" class="ui-widget ui-state-default ui-corner-all">
+                    </div>
+
+                {{/if}}
+
+            </fieldset>
+            <div class="generalOptionsToolbar ui-widget-content ui-corner-all">
+              <a title="<?php echo $this->translate("Guardar");?>"
+                 class="action submit ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" role="button"
+              >
+                <span class="ui-button-text">
+                  <span class="ui-silk inline ui-silk-bullet-disk"></span>
+                  <?php echo $this->translate("Guardar");?>
+                </span>
+              </a>
+            </div>
+            <input type="hidden" name="pk" value="" />
+        </form>
+    </div>
 {{/if}}
+
+
 
 {{if this.data.currentPage == "gallery" && this.data.currentAction == "load"}}
     <div class="topMenu">
@@ -55,15 +130,15 @@ ${( _self = this ),''}
                 </span>
             </a>
             <a style="display:none;" class="action ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only newImg"
-               title="<?= $this->translate("Nueva imagen"); ?>">
+               title="<?= $this->translate("Volver"); ?>">
                 <span class="ui-button-text">
-                    <span title="<?= $this->translate("Volver"); ?>" class="ui-silk inline  ui-silk-arrow-undo"></span>
+                    <span title="<?= $this->translate("Volver"); ?>" class="ui-silk inline ui-silk-arrow-undo"></span>
                     <?= $this->translate("Cancelar"); ?>
                 </span>
             </a>
          </div>
     </div>
-    <br style="clear-both;"/>
+    <br style="clear:both;"/>
     <div class="galleryContent">
         <ul class="pictureList">
         {{each(idx,picture) this.data.pictures}}
@@ -128,7 +203,7 @@ ${( _self = this ),''}
                title="<?= $this->translate("Cancelar modo edición");?>">
                 <span class="ui-button-text">
                     <span title="<?= $this->translate("Volver");?>" class="ui-silk inline  ui-silk-arrow-undo"></span>
-                    <?= $this->translate("Cancelar");?>
+                    <?= $this->translate("Cancelar");?> #
                 </span>
             </a>
             <a style="display:none;" class="save action ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
@@ -157,8 +232,8 @@ ${( _self = this ),''}
             </p>
 
             <div class="selectableImgWrapper">
-                <img data-handler="${publicImgRoute}"
-                     data-slug="${this.data.picture.slug}"
+                <img data-baseUrl="${this.data.publicImgBase}"
+                     data-uri="${this.data.publicImgUri}"
                      data-extension="${this.data.picture.extension}"
                      data-pk="${this.data.picture.pk}"
                      class="selectable"
@@ -217,54 +292,56 @@ ${( _self = this ),''}
                 </span>
             </a>
         </div>
+        <br style="clear:both;" />
     </div>
-    <table class="kMatrix">
-      <caption class="ui-state-active ui-priority-primary">
-        <?= $this->translate("Tamaños de imagen");?>  <span class="extraCaptionInfo">
-        <?= $this->translate("Total");?>:<strong>${this.data.sizes.length}</strong> <?= $this->translate("Registros");?> </span>
-      </caption>
-      <tbody>
-      <tr class="ui-widget-content">
-        <th class="ui-widget-header" data-field="pk">
-          <span class="title"><?= $this->translate("Ancho"); ?></span>
-        </th>
-        <th class="ui-widget-header" data-field="name">
-          <span class="title"><?= $this->translate("Alto"); ?></span>
-        </th>
-        <th class="ui-widget-header" data-field="name">
-          <span class="title"><?= $this->translate("Política"); ?></span>
-        </th>
-        <th class="ui-widget-header" data-field="name">
-          <span class="title"><?= $this->translate("Opciones");?></span>
-        </th>
-      </tr>
-      {{each(idx,row) this.data.sizes}}
-      <tr class="ui-widget-content">
-        <td>
-            ${row.width.value}
-        </td>
-        <td>
-            ${row.height.value}
-        </td>
-        <td>
-            ${row.policy.value}
-        </td>
-        <td>
-            <a title="<?= $this->translate("Editar");?>" href="${_self.data.baseUrl}&section=sizes&action=edit&parentPk=${_self.data.parentPk}&pk=${row.pk}"
-               class="option screen default ui-state-nojump">
-                <span class="ui-silk inline ui-silk-pencil"></span>
-            </a>
-            <a title="<?= $this->translate("Delete");?>" data-dialog="pagEstaticasDel_dialog" class="option ui-state-nojump delete"
-               rel="${_self.data.baseUrl}&section=sizes&action=delete&parentPk=${_self.data.parentPk}&pk=${row.pk}"
-            >
-                <span class="ui-silk inline ui-silk-bin"></span>
-            </a>
-        </td>
-      </tr>
-      {{/each}}
-      </tbody>
-    </table>
-
+    <div style="margin-top:20px;">
+        <table class="kMatrix">
+          <caption class="ui-state-active ui-priority-primary">
+            <?= $this->translate("Tamaños de imagen");?>  <span class="extraCaptionInfo">
+            <?= $this->translate("Total");?>:<strong>${this.data.sizes.length}</strong> <?= $this->translate("Registros");?> </span>
+          </caption>
+          <tbody>
+          <tr class="ui-widget-content">
+            <th class="ui-widget-header" data-field="pk">
+              <span class="title"><?= $this->translate("Ancho"); ?></span>
+            </th>
+            <th class="ui-widget-header" data-field="name">
+              <span class="title"><?= $this->translate("Alto"); ?></span>
+            </th>
+            <th class="ui-widget-header" data-field="name">
+              <span class="title"><?= $this->translate("Política"); ?></span>
+            </th>
+            <th class="ui-widget-header" data-field="name">
+              <span class="title"><?= $this->translate("Opciones");?></span>
+            </th>
+          </tr>
+          {{each(idx,row) this.data.sizes}}
+          <tr class="ui-widget-content">
+            <td>
+                ${row.width.value}
+            </td>
+            <td>
+                ${row.height.value}
+            </td>
+            <td>
+                ${row.policy.value}
+            </td>
+            <td>
+                <a title="<?= $this->translate("Editar");?>" href="${_self.data.baseUrl}&section=sizes&action=edit&parentPk=${_self.data.parentPk}&pk=${row.pk}"
+                   class="option screen default ui-state-nojump">
+                    <span class="ui-silk inline ui-silk-pencil"></span>
+                </a>
+                <a title="<?= $this->translate("Delete");?>" data-dialog="pagEstaticasDel_dialog" class="option ui-state-nojump delete"
+                   rel="${_self.data.baseUrl}&section=sizes&action=delete&parentPk=${_self.data.parentPk}&pk=${row.pk}"
+                >
+                    <span class="ui-silk inline ui-silk-bin"></span>
+                </a>
+            </td>
+          </tr>
+          {{/each}}
+          </tbody>
+        </table>
+    </div>
 {{/if}}
 
 {{if this.data.currentPage == "sizes" && (this.data.currentAction == "edit" || this.data.currentAction == "new") }}

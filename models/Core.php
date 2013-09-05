@@ -110,7 +110,9 @@ class KlearGallery_Model_Core
                 $resp = $this->_getGalleries();
                 if (is_array($resp)) {
                     $data['galleries'] = $resp;
+                    $data['galleryStructure'] = $this->_getGalleryStructure();
                 }
+
                 break;
 
             case 'gallery':
@@ -118,6 +120,7 @@ class KlearGallery_Model_Core
                 $resp = $this->_getGallery();
                 if (is_array($resp)) {
                     $data += $resp;
+                    $data['galleryStructure'] = $this->_getGalleryStructure();
                 }
                 break;
 
@@ -348,7 +351,6 @@ class KlearGallery_Model_Core
         return $this->_mainConfig['pictureSizes']['widthFieldName'];
     }
 
-
     /**
      * @return string
      */
@@ -378,18 +380,106 @@ class KlearGallery_Model_Core
         return $galleryData;
     }
 
+    protected function _getGalleryStructure()
+    {
+        $galleryModel = $this->_galleryMapper->loadModel(null);
+        $titleField = $this->_mainConfig['galleries']['titleFieldName'];
+        $availableLangs = $galleryModel->getAvailableLangs();
+        $mlFields = $galleryModel->getMultiLangColumnsList();
+
+        $isMultilang = false;
+        if (in_array(ucfirst($titleField), $mlFields)) {
+            $isMultilang = true;
+        }
+
+        $data = array(
+            'pkName' => $galleryModel->getPrimaryKeyName(),
+            'field' => $titleField,
+            'isMultilang' => $isMultilang,
+            'availableLangs' => $availableLangs
+        );
+
+        return $data;
+    }
+
     protected function _getGallery()
     {
+
         $data = array();
+        switch ($this->_request->getQuery("action")) {
 
-        $defaultItemsPerPage = $this->_request->getParam("isDialog") === "true" ? 8 : 14;
-        $itemsPerPage = $this->_request->getParam("itemsPerPage", $defaultItemsPerPage);
-        $currentPage = $this->_request->getParam("page", 1);
-        $galleryPk = $this->_request->getParam("pk");
+            case 'remove':
 
-        $data['galleryId'] = $this->_request->getParam("pk");
-        $data +=  $this->_getPictures($galleryPk, $itemsPerPage, $currentPage);
-        $data['publicImgRoute'] = $this->_getPublicImageRoute($data);
+                $this->_view->success = false;
+                $galleryModel = $this->_galleryMapper->find($this->_request->getParam("pk"));
+
+                if ($galleryModel) {
+
+                    $this->_view->success = (boolean) $galleryModel->delete();
+                }
+                break;
+
+            case 'edit':
+
+                $galleryModel = $this->_galleryMapper->find($this->_request->getParam("pk"));
+                if ($galleryModel) {
+                    $data['galleryData'] = $galleryModel->toArray();
+                }
+
+                break;
+
+            case 'save':
+
+                $params = $this->_request->getParams();
+                unset($params['mainRouter']);
+
+                $galleryStructure = $this->_getGalleryStructure();
+
+
+                if ($this->_request->getParam("pk")) {
+
+                    $newModel = $this->_galleryMapper->find($this->_request->getParam("pk"));
+                    if (! $newModel) {
+                        throw new Zend_Controller_Action_Exception("Element not found", 500);
+                    }
+                } else {
+                    $newModel = $this->_galleryMapper->loadModel(null);
+                }
+
+                if ($galleryStructure['isMultilang']) {
+
+                    foreach ($galleryStructure['availableLangs'] as $language) {
+                        $expectedPostVarName = $galleryStructure['field'] . $language;
+                        if ($this->_request->getParam($expectedPostVarName)) {
+                            $setter = 'set' . ucfirst($galleryStructure['field']);
+                            $newModel->$setter($this->_request->getParam($expectedPostVarName), $language);
+                        } else {
+                            $setter = 'set' . ucfirst($galleryStructure['field']);
+                            $newModel->$setter($this->_request->getParam($galleryStructure['field']), $language);
+                        }
+                    }
+                }
+
+                $this->_view->success =  $newModel->save();
+                break;
+
+            default:
+
+                $defaultItemsPerPage = $this->_request->getParam("isDialog") === "true" ? 8 : 14;
+                $itemsPerPage = $this->_request->getParam("itemsPerPage", $defaultItemsPerPage);
+                $currentPage = $this->_request->getParam("page", 1);
+                $galleryPk = $this->_request->getParam("pk");
+
+                $data['galleryId'] = $this->_request->getParam("pk");
+                $data +=  $this->_getPictures($galleryPk, $itemsPerPage, $currentPage);
+
+                $url = $this->_getPublicImageRoute($data);
+                $data['publicImgBase'] = $this->_view->baseUrl("/");
+                $data['publicImgUri'] = $url;
+                break;
+        }
+
+
 
         return $data;
     }
@@ -406,15 +496,17 @@ class KlearGallery_Model_Core
         $preview = $this->_request->getParam("preview", false);
 
         if ($preview) {
-
             $this->_sendPictureToBrowser($pk);
             return;
         }
 
         $data['picture']  = $this->_getPictureData($pk);
-        $data['publicImgRoute'] = $this->_getPublicImageRoute($data['picture']);
         $data['fieldToParentTable'] = $this->_getParentRelationFieldName($pk);
         $data['page'] = $this->_request->getParam("page", 1);
+
+        $url = $this->_getPublicImageRoute($data['picture']);
+        $data['publicImgBase'] = $this->_view->baseUrl("/");
+        $data['publicImgUri'] = $url;
 
         return $data;
     }
@@ -488,7 +580,6 @@ class KlearGallery_Model_Core
     protected function _getPublicImageRoute($imageData)
     {
         if (! isset($this->_mainConfig['publicPictureRoute'])) {
-
             throw new Exception('Missing publicPictureRoute configuration');
         }
 
@@ -497,13 +588,11 @@ class KlearGallery_Model_Core
         ksort($valueMap);
 
         foreach ($valueMap as $varName) {
-
-
             $values[$varName] = array_key_exists($varName, $imageData) ? $imageData[$varName] : "#$varName#";
         }
 
         array_unshift($values, $this->_mainConfig['publicPictureRoute']['reverse']);
-        return $this->_view->baseUrl() . '/' . call_user_func_array('sprintf', $values);
+        return call_user_func_array('sprintf', $values);
     }
 
     /**
@@ -660,15 +749,10 @@ class KlearGallery_Model_Core
     protected function _getProperImageBinary(KlearMatrix_Model_Fso $image, $width, $height, $rule)
     {
         if ($rule) {
-
             return $this->_resizeImage($image->getFilePath(), $width, $height, $rule);
-
         } else if ($width) {
-
             return $this->_resizeImage($image->getFilePath(), $width, $height);
-
         } else {
-
             return $image->getBinary();
         }
     }
@@ -682,7 +766,6 @@ class KlearGallery_Model_Core
     {
         $maxSize = $this->_request->getParam("size");
         if ($maxSize) {
-
             return array($maxSize, $maxSize, 0);
         }
 
@@ -699,9 +782,7 @@ class KlearGallery_Model_Core
         $resizeRuleGetter = 'get' . ucfirst($this->_getPictureResizePolicyFieldName());
 
         if ($maxSizeId) {
-
             $resizeRule = $this->_pictureSizeMapper->find($maxSizeId);
-
             if ($resizeRule) {
                 return array(
                     $resizeRule->$widthGetter(),

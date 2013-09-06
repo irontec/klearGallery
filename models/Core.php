@@ -540,9 +540,6 @@ class KlearGallery_Model_Core
 
     protected function _getPictureSizeEditScreenData()
     {
-
-        $galleryPk =
-
         $data = array();
         $data["parentPk"] = $this->_request->getParam("parentPk");
         $data['sizes']    = $this->_getPictureSizes(

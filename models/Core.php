@@ -369,11 +369,12 @@ class KlearGallery_Model_Core
         foreach ($galleries as $gallery) {
 
             $galleryNameGetter = 'get' . ucfirst($this->_mainConfig['galleries']['titleFieldName']);
+            $recordCountCondition = $galleryPicturesRelFieldName . ' = ' . intval($gallery->getPrimaryKey());
 
             $galleryData[] = array(
                 'pk' => $gallery->getPrimaryKey(),
                 'name'   => $gallery->$galleryNameGetter(),
-                'recordCount' => $this->_pictureMapper->countByQuery($galleryPicturesRelFieldName . ' = ' . $gallery->getPrimaryKey())
+                'recordCount' => $this->_pictureMapper->countByQuery($recordCountCondition)
             );
         }
 
@@ -539,9 +540,15 @@ class KlearGallery_Model_Core
 
     protected function _getPictureSizeEditScreenData()
     {
+
+        $galleryPk =
+
         $data = array();
         $data["parentPk"] = $this->_request->getParam("parentPk");
-        $data['sizes'] = $this->_getPictureSizes($this->_request->getParam("galleryPk"), $this->_request->getParam("pk"));
+        $data['sizes']    = $this->_getPictureSizes(
+                                $this->_request->getParam("galleryPk"),
+                                $this->_request->getParam("pk")
+                            );
         $data['widthField'] = $this->_getPictureWidthFieldName();
         $data['heightField'] = $this->_getPictureHeightFieldName();
         $data['policyField'] = $this->_getPictureResizePolicyFieldName();
@@ -927,11 +934,6 @@ class KlearGallery_Model_Core
 
     protected function _getParentRelationFieldName($seccion = null)
     {
-        /*if (is_null($seccion)) {
-
-            $seccion = $this->_getCurrentPage();
-        }*/
-
         if ($seccion == 'picSizes') {
 
             $model = $this->_pictureSizeMapper->loadModel(null);
@@ -959,14 +961,16 @@ class KlearGallery_Model_Core
 
         if (is_null($propertyName)) {
 
-            Throw new Exception("Could not determine related fields between " . $parentTableName . " and " . $tableName);
+            $exceptionMsg = "Could not determine related fields between " . $parentTableName . " and " . $tableName;
+            Throw new Exception($exceptionMsg);
         }
 
         $idColumnName = $model->getColumnForParentTable($parentTableName, $propertyName);
 
         if (is_null($idColumnName)) {
 
-            Throw new Exception("Could not determine related fields between " . $parentTableName . " and " . $tableName);
+            $exceptionMsg = "Could not determine related fields between " . $parentTableName . " and " . $tableName;
+            Throw new Exception($exceptionMsg);
         }
 
         return $idColumnName;

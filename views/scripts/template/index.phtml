@@ -203,7 +203,7 @@ ${( _self = this ),''}
                title="<?= $this->translate("Cancelar modo edición");?>">
                 <span class="ui-button-text">
                     <span title="<?= $this->translate("Volver");?>" class="ui-silk inline  ui-silk-arrow-undo"></span>
-                    <?= $this->translate("Cancelar");?> #
+                    <?= $this->translate("Cancelar");?>
                 </span>
             </a>
             <a style="display:none;" class="save action ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only"
@@ -236,6 +236,7 @@ ${( _self = this ),''}
                      data-uri="${this.data.publicImgUri}"
                      data-extension="${this.data.picture.extension}"
                      data-pk="${this.data.picture.pk}"
+                     data-alt="${this.data.picture.title}"
                      class="selectable"
                      src="${baseUrl}&section=picture&action=load&pk=${this.data.picture.pk}&preview=true" style="max-width:370px;" />
             </div>
@@ -258,7 +259,7 @@ ${( _self = this ),''}
                 </div>
                 <div class="container ui-widget-header ui-state-default metadata">
                     <p>
-                        <?= $this->translate("Nombre de archivo");?>: <span>${this.data.picture.filename}</span>
+                        <?= $this->translate("Nombre de archivo");?>: <span>${this.data.picture.fileName}</span>
                     </p>
                     <p>
                         <?= $this->translate("Tamaño");?>: <span>${this.data.picture.size} kb</span>

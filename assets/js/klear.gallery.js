@@ -407,6 +407,7 @@
 
                           var sizeOption = $("select.sizeSelector option:selected", _self.layout);
                           var sizeOptionValue = sizeOption.attr("value") ? sizeOption.attr("value") : 0;
+                          var imgAlt = $(this).data("alt");
                           var imgUri = $(this).data("uri").replace("#sizeId#", sizeOptionValue);
                           var imgSrc = $(this).data("baseurl") + imgUri;
 
@@ -418,7 +419,7 @@
                           }
 
                           var injectedImg = $(_self.options._wym._doc).find("img[src='"+ imgSrc +"']");
-                          injectedImg.attr("data-uri", imgUri);
+                          injectedImg.attr({"data-uri": imgUri, "alt" : imgAlt});
                           var closeButton = _self.layout.next().find("div.ui-dialog-buttonset button");
 
                           $(_self.options._wym._doc).trigger("keyup");

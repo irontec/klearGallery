@@ -546,9 +546,9 @@ class KlearGallery_Model_Core
         $data = array();
         $data["parentPk"] = $this->_request->getParam("parentPk");
         $data['sizes']    = $this->_getPictureSizes(
-                                $this->_request->getParam("galleryPk"),
-                                $this->_request->getParam("pk")
-                            );
+            $this->_request->getParam("galleryPk"),
+            $this->_request->getParam("pk")
+        );
         $data['widthField'] = $this->_getPictureWidthFieldName();
         $data['heightField'] = $this->_getPictureHeightFieldName();
         $data['policyField'] = $this->_getPictureResizePolicyFieldName();

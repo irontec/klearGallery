@@ -47,6 +47,12 @@
 
                 this.layout.html($appliedTemplate);
 
+                if (this.isDialog) {
+
+                    //console.log($appliedTemplate);
+                    //console.log(this.layout.tooltip());
+                }
+
                 this._registerBaseEvents();
                 this._registerGalleryEvents();
                 this._initStyles();
@@ -215,7 +221,7 @@
                                           .select();
 
                 var selectableImage = wrapper.find("img.selectable");
-                wrapper.find("div.container, div.assistant, p.sizeSelector").toggle();
+                wrapper.find("div.container, div.assistant, p.sizeSelector, div.insert").toggle();
 
                 if ($(this).hasClass("init")) {
 
@@ -387,8 +393,18 @@
             if (_self.isDialog && _self.options._wym) {
 
                 var sizeSelector = $(_self.layout).find("p.sizeSelector");
+                var insertImageButton = $(_self.layout).find("div.insert");
+
                 sizeSelector.show();
+                insertImageButton.show();
                 sizeSelector.find("ul.selectboxit-options").css("right", "0");
+
+                insertImageButton.off('click', 'a').on('click', 'a', function (e) {
+
+                    e.preventDefault();
+                    e.stopPropagation();
+                    $(_self.layout).find("img.selectable").trigger('click');
+                });
 
                 $(_self.layout).find("img.selectable").css("cursor", "pointer").off("click").on("click",
                     function () {
@@ -443,7 +459,7 @@
 
                     if (! _self.isDialog) {
 
-                        _self.layout.css("width", "50%");
+                        //_self.layout.css("width", "50%");
 
                     } else {
 

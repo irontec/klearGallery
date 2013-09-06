@@ -219,18 +219,6 @@ ${( _self = this ),''}
     <div class="pictureDetail klearMatrix_form">
         <fieldset class="ui-widget-content ui-corner-all">
             <legend class="ui-widget-header ui-corner-all">${this.data.picture.title}&nbsp;</legend>
-            <p class="sizeSelector" style="display:none;">
-                <select name="size" class="sizeSelector">
-                    <option value=""><?= $this->translate("Tamaño original");?></option>
-                    {{each(idx, row) this.data.picture.availableDimensions}}
-                        <option value="${row.pk}">
-                            ${row.width.value}x${row.height.value}
-                            [${row.policy.value}]
-                        </option>
-                    {{/each}}
-                </select>
-            </p>
-
             <div class="selectableImgWrapper">
                 <img data-baseUrl="${this.data.publicImgBase}"
                      data-uri="${this.data.publicImgUri}"
@@ -240,17 +228,30 @@ ${( _self = this ),''}
                      class="selectable"
                      src="${baseUrl}&section=picture&action=load&pk=${this.data.picture.pk}&preview=true" style="max-width:370px;" />
             </div>
-            <div class="ui-widget-content ui-corner-all assistant" style="display:none;">
-                <div class="fieldInfo-boxinfo ui-state-highlight ui-corner-all" style="display: none;">
-                    <p><?= $this->translate("Para añadir esta imagen al editor de contenido, seleccione el tamaño deseado y haga click sobre la imagen");?></p>
+            <div>
+                <p class="sizeSelector" style="display:none;float:left;">
+                    <select name="size" class="sizeSelector">
+                        <option value=""><?= $this->translate("Tamaño original");?></option>
+                        {{each(idx, row) this.data.picture.availableDimensions}}
+                            <option value="${row.pk}">
+                                ${row.width.value}x${row.height.value}
+                                [${row.policy.value}]
+                            </option>
+                        {{/each}}
+                    </select>
+                </p>
+                <div class="right insert" style="display:none;">
+                    <a class="insert action ui-button ui-widget ui-state-default ui-corner-all ui-button-text-only" title="<?= $this->translate("Insertar");?>">
+                        <span class="ui-button-text">
+                            <span title="<?= $this->translate("Insertar"); ?>" class="ui-silk inline ui-silk-image-add"></span> <?= $this->translate("Insertar"); ?>
+                        </span>
+                    </a>
                 </div>
-                <span data-title="<?= $this->translate("Al recibir un nuevo curriculum se avisará vía email a las direcciones configuradas para ello");?>"
-                class=" ui-silk ui-silk-help fieldInfo-box fieldInfo-position-left "></span>
-                <?= $this->translate("¿Necesita ayuda?");?>
-             </div>
+            </div>
+            <br style="clear:both;"/>
             <div>
                 <div class="ui-widget-header photoTitle">
-                    <strong><?= $this->translate("Titulo:");?></strong>
+                    <strong><?= $this->translate("Texto alternativo:");?></strong>
                     <form method="POST" style="display:inline;"
                      action="${baseUrl}&section=picture&action=update&pk=${this.data.picture.pk}">
                         <span>${this.data.picture.title}</span>
@@ -262,13 +263,12 @@ ${( _self = this ),''}
                         <?= $this->translate("Nombre de archivo");?>: <span>${this.data.picture.fileName}</span>
                     </p>
                     <p>
-                        <?= $this->translate("Tamaño");?>: <span>${this.data.picture.size} kb</span>
-                    </p>
-                    <p>
-                        <?= $this->translate("Tipo de archivo");?>: <span>${this.data.picture.mimetype}</span>
-                    </p>
-                    <p>
-                        <?= $this->translate("Dimensiones");?>: <span>${this.data.picture.dimensions.width} x ${this.data.picture.dimensions.height}</span>
+                        Detalles de la imagen:
+                        <span>
+                            ${this.data.picture.size} kb <strong>-</strong>
+                            ${this.data.picture.dimensions.width}x${this.data.picture.dimensions.height}px <strong>-</strong>
+                            ${this.data.picture.mimetype}
+                        </span>
                     </p>
                 </div>
             </div>

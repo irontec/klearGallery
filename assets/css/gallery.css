@@ -35,7 +35,7 @@ div.topMenu a.right {
 
     float: right;
 }
-
+/*
 p.sizeSelector {
 
     right: 25px;
@@ -43,7 +43,12 @@ p.sizeSelector {
     text-align: right;
     top: 49px;
 }
+*/
 
+div.insert {
+
+    padding-top: 5px;
+}
 div.selectableImgWrapper {
 
     margin-top: 5px;

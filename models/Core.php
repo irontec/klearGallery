@@ -19,6 +19,9 @@ class KlearGallery_Model_Core
     protected $_cache;
     protected $_ironSlug;
 
+
+    protected $_language;
+
     public function __construct(Zend_Controller_Request_Abstract $request)
     {
         $this->_request = $request;
@@ -49,6 +52,9 @@ class KlearGallery_Model_Core
     protected function _loadConfig()
     {
         $this->_mainConfig = $this->_getConfig();
+
+        $currentKlearLanguage = Zend_Registry::get('currentSystemLanguage');
+        $this->_language = $currentKlearLanguage->getIden();
     }
 
     protected function _getConfig()
@@ -511,6 +517,7 @@ class KlearGallery_Model_Core
         $url = $this->_getPublicImageRoute($data['picture']);
         $data['publicImgBase'] = $this->_view->baseUrl("/");
         $data['publicImgUri'] = $url;
+        $data['language'] = $this->_language;
 
         return $data;
     }

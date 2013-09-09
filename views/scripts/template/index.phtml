@@ -251,7 +251,7 @@ ${( _self = this ),''}
             <br style="clear:both;"/>
             <div>
                 <div class="ui-widget-header photoTitle">
-                    <strong><?= $this->translate("Texto alternativo:");?></strong>
+                    <strong><?= $this->translate("Texto alternativo");?> [${this.data.language}]:</strong>
                     <form method="POST" style="display:inline;"
                      action="${baseUrl}&section=picture&action=update&pk=${this.data.picture.pk}">
                         <span>${this.data.picture.title}</span>

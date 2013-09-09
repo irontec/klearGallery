@@ -49,8 +49,17 @@
 
                 if (this.isDialog) {
 
-                    //console.log($appliedTemplate);
-                    //console.log(this.layout.tooltip());
+                    this.layout.find("a[title]").tooltip(
+                        {
+                           position: {
+                            using: function( position, feedback ) {
+                              $(this).css("z-index", 1100);
+                              $( this ).css( position );
+                              $( "<div>" ).appendTo( this );
+                            }
+                           }
+                        }
+                    );
                 }
 
                 this._registerBaseEvents();

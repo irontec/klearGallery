@@ -24,5 +24,7 @@ production:
     reverse: klearGallery/media/image/%s-%s-%s.%s
 testing:
   _extends: production
+staging:
+  _extends: production
 development:
   _extends: production

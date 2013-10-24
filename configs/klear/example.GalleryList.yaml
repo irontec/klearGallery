@@ -33,6 +33,9 @@ production:
           es: "Galería"
       label: true
 
+
+staging:
+  _extends: production
 testing:
   _extends: production
 development:

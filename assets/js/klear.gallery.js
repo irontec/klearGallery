@@ -22,7 +22,7 @@
         },
         _init: function() {
 
-            if (this.options._wym) {
+            if ($(this.element.klearModule("getModuleDialog")).context) {
 
                 this.isDialog = true;
             }
@@ -376,7 +376,6 @@
        },
 
        _initContext: function () {
-
            if (this.isDialog) {
                 this._initDialogContext();
            } else {
@@ -399,7 +398,7 @@
 
             var _self = this;
 
-            if (_self.isDialog && _self.options._wym) {
+            if (_self.isDialog) {
 
                 var sizeSelector = $(_self.layout).find("p.sizeSelector");
                 var insertImageButton = $(_self.layout).find("div.insert");
@@ -417,41 +416,61 @@
 
                 $(_self.layout).find("img.selectable").css("cursor", "pointer").off("click").on("click",
                     function () {
+                        if (_self.options._wym) {
+                            _self._insertImageIntoWymEditor.apply(_self, [this]);
+                        } else if (window.tinymce) {
+                            _self._insertImageIntoTinyEditor.apply(_self, [this]);
+                        }
 
-                          var wym = _self.options._wym;
-                          var selectedImg = null;
-
-                          if ( wym._selected_image ) {
-
-                              selectedImg = wym._selected_image;
-
-                          } else if ( wym._wym._selected_image ) {
-
-                              selectedImg = wym._wym._selected_image;
-                          }
-
-                          var sizeOption = $("select.sizeSelector option:selected", _self.layout);
-                          var sizeOptionValue = sizeOption.attr("value") ? sizeOption.attr("value") : 0;
-                          var imgAlt = $(this).data("alt");
-                          var imgUri = $(this).data("uri").replace("#sizeId#", sizeOptionValue);
-                          var imgSrc = $(this).data("baseurl") + imgUri;
-
-                          var execResp = _self.options._wym._doc.execCommand("insertImage", false, imgSrc);
-                          var container =  _self.options._wym.selected();
-
-                          if (container && container.tagName.toLowerCase() === WYMeditor.BODY) {
-                             _self.options._wym._exec(WYMeditor.FORMAT_BLOCK, WYMeditor.P);
-                          }
-
-                          var injectedImg = $(_self.options._wym._doc).find("img[src='"+ imgSrc +"']");
-                          injectedImg.attr({"data-uri": imgUri, "alt" : imgAlt});
-                          var closeButton = _self.layout.next().find("div.ui-dialog-buttonset button");
-
-                          $(_self.options._wym._doc).trigger("keyup");
-                          closeButton.trigger("click");
-                      }
+                        var closeButton = _self.layout.next().find("div.ui-dialog-buttonset button");
+                        closeButton.trigger("click");
+                    }
                   );
             }
+       },
+
+       _insertImageIntoTinyEditor: function (image) {
+
+            var sizeOption = $("select.sizeSelector option:selected", this.layout);
+            var sizeOptionValue = sizeOption.attr("value") ? sizeOption.attr("value") : 0;
+            var imgAlt = $(image).data("alt");
+            var imgUri = $(image).data("uri").replace("#sizeId#", sizeOptionValue);
+            var imgSrc = $(image).data("baseurl") + imgUri;
+
+            var img = '<img alt="'+ imgAlt +'" src="'+ imgSrc +'" />';
+            window.tinymce.EditorManager.activeEditor.insertContent(img);
+       },
+
+       _insertImageIntoWymEditor: function (image) {
+
+          var wym = this.options._wym;
+          var selectedImg = null;
+
+          if ( wym._selected_image ) {
+
+              selectedImg = wym._selected_image;
+
+          } else if ( wym._wym._selected_image ) {
+
+              selectedImg = wym._wym._selected_image;
+          }
+
+          var sizeOption = $("select.sizeSelector option:selected", this.layout);
+          var sizeOptionValue = sizeOption.attr("value") ? sizeOption.attr("value") : 0;
+          var imgAlt = $(image).data("alt");
+          var imgUri = $(image).data("uri").replace("#sizeId#", sizeOptionValue);
+          var imgSrc = $(image).data("baseurl") + imgUri;
+
+          var execResp = this.options._wym._doc.execCommand("insertImage", false, imgSrc);
+          var container =  this.options._wym.selected();
+
+          if (container && container.tagName.toLowerCase() === WYMeditor.BODY) {
+             this.options._wym._exec(WYMeditor.FORMAT_BLOCK, WYMeditor.P);
+          }
+
+          var injectedImg = $(this.options._wym._doc).find("img[src='"+ imgSrc +"']");
+          injectedImg.attr({"data-uri": imgUri, "alt" : imgAlt});
+          $(this.options._wym._doc).trigger("keyup");
        },
 
         _openGallery: function (node, callback) {

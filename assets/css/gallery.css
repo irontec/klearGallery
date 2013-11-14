@@ -31,6 +31,11 @@ div.topMenu a.left {
     float: left;
 }
 
+div.topMenu {
+
+    text-align:left;
+}
+
 div.topMenu a.right {
 
     float: right;
@@ -56,7 +61,7 @@ div.selectableImgWrapper {
 
 div.galleryContent ul.pictureList,
 div.pictureDetail {
-
+    margin-left:15px;
     margin-top: 10px;
 }
 

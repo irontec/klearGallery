@@ -1,7 +1,6 @@
 ;(function load($) {
 
     if ($.klear.checkDeps && !$.klear.checkDeps(['$.klearmatrix.module','$.ui.form'],load)) {
-
         return;
     }
 
@@ -23,14 +22,12 @@
         _init: function() {
 
             if ($(this.element.klearModule("getModuleDialog")).context) {
-
                 this.isDialog = true;
             }
 
             if (this.options.data.templateName) {
 
                 var $appliedTemplate = this._loadTemplate(this.options.data.templateName);
-
                 if (this.isDialog) {
 
                     this.layout = $(this.element.klearModule("getModuleDialog"));
@@ -105,8 +102,6 @@
                 });
             }
        },
-
-
        _initNewGalleryHandler: function () {
 
             var _self = this;
@@ -155,7 +150,6 @@
                 });
             });
        },
-
        _initDeleteHandler: function () {
 
             var removeImg = $(this.layout).find("a.delete");
@@ -204,7 +198,6 @@
                 });
             }
        },
-
        _initImageEditHandler: function () {
 
             var _self = this;
@@ -272,7 +265,6 @@
                 });
             });
        },
-
        _initUploader: function () {
 
             var _self = this;
@@ -344,7 +336,6 @@
                 var uploader = new qq.FileUploader(qqOptions);
             }
        },
-
        _initImageSizeEditHandler: function () {
 
             var _self = this;
@@ -374,7 +365,6 @@
                 });
             });
        },
-
        _initContext: function () {
            if (this.isDialog) {
                 this._initDialogContext();
@@ -382,7 +372,6 @@
                this._initScreenContext();
            }
        },
-
        _initScreenContext: function () {
 
             var _self = this;
@@ -393,7 +382,6 @@
                 window.open(imgSrc, "newTab");
             });
        },
-
        _initDialogContext: function() {
 
             var _self = this;
@@ -418,17 +406,17 @@
                     function () {
                         if (_self.options._wym) {
                             _self._insertImageIntoWymEditor.apply(_self, [this]);
+                            var closeButton = _self.layout.next().find("div.ui-dialog-buttonset button");
                         } else if (window.tinymce) {
                             _self._insertImageIntoTinyEditor.apply(_self, [this]);
+                            var closeButton = _self.layout.parent().next().find("div.mce-close button");
                         }
 
-                        var closeButton = _self.layout.next().find("div.ui-dialog-buttonset button");
                         closeButton.trigger("click");
                     }
                   );
             }
        },
-
        _insertImageIntoTinyEditor: function (image) {
 
             var sizeOption = $("select.sizeSelector option:selected", this.layout);
@@ -438,9 +426,9 @@
             var imgSrc = $(image).data("baseurl") + imgUri;
 
             var img = '<img alt="'+ imgAlt +'" src="'+ imgSrc +'" />';
+
             window.tinymce.EditorManager.activeEditor.insertContent(img);
        },
-
        _insertImageIntoWymEditor: function (image) {
 
           var wym = this.options._wym;
@@ -472,7 +460,6 @@
           injectedImg.attr({"data-uri": imgUri, "alt" : imgAlt});
           $(this.options._wym._doc).trigger("keyup");
        },
-
         _openGallery: function (node, callback) {
 
             var _self = this;
@@ -486,21 +473,18 @@
                     var $appliedTemplate = _self._loadTemplate(resp.data.templateName);
 
                     if (! _self.isDialog) {
-
                         //_self.layout.css("width", "50%");
-
                     } else {
-
                         $($appliedTemplate).find("div.assistant").show();
                     }
 
-                    if (_self.isDialog) {
-
+                    if (_self.isDialog && _self.options._wym) {
                         _self.layout.klearModule("moduleDialog").moduleDialog("updateContent", $appliedTemplate);
-
                     } else {
-
                         _self.layout.html($appliedTemplate);
+                        if (_self.isDialog) {
+                            console.log(_self.layout.klearModule("moduleDialog"));
+                        }
                     }
 
                     var parentContext = _self;
@@ -513,7 +497,6 @@
                 }
             });
         },
-
         _initStyles: function () {
 
             var tr = $('table.kMatrix tr', this.layout);

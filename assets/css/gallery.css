@@ -32,8 +32,8 @@ div.topMenu a.left {
 }
 
 div.topMenu {
-
     text-align:left;
+    padding-top: 10px;
 }
 
 div.topMenu a.right {
@@ -110,4 +110,13 @@ div.galleryContent div.qq-gallery-upload-drop-area {
     text-align:center;
     font-size:20px;
     color: #AAAAAA;
+}
+
+.mce-window.mce-in {
+top: 20%;
+padding: 15px;
+}
+
+.mce-window-head .mce-close {
+    line-height: 16px;
 }

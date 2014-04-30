@@ -4,7 +4,7 @@ production:
     titleFieldName: name
   galleryPictures:
     mapper: Appnamespace\Mapper\Sql\KlearImageGalleriesPictures
-    titleFieldName: titulo
+    titleFieldName: title
   pictureSizes:
     mapper: Appnamespace\Mapper\Sql\KlearImageGalleriesSizes
     widthFieldName: width

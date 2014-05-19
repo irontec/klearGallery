@@ -760,7 +760,7 @@ class KlearGallery_Model_Core
         $fileSender->direct($binary, $options, true);
     }
 
-    protected function _getProperImageBinary(KlearMatrix_Model_Fso $image, $width, $height, $rule)
+    protected function _getProperImageBinary(Iron_Model_Fso $image, $width, $height, $rule)
     {
         if ($rule) {
             return $this->_resizeImage($image->getFilePath(), $width, $height, $rule);
@@ -823,7 +823,7 @@ class KlearGallery_Model_Core
         return $picture->$fileObjectGetter();
     }
 
-    protected function _secureArgumentMatch(KlearMatrix_Model_Fso $image)
+    protected function _secureArgumentMatch(Iron_Model_Fso $image)
     {
         if ($this->_request->get("mainRouter") instanceof KlearMatrix_Model_RouteDispatcher) {
 
